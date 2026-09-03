@@ -1,0 +1,12 @@
+{
+  "name": "My Coffee Shop POS",
+  "short_name": "Cafe POS",
+  "description": "Offline coffee shop billing and inventory management",
+  "start_url": "/Billing/",
+  "scope": "/Billing/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f6f3ef",
+  "theme_color": "#6f4e37",
+  "lang": "en-IN"
+}
