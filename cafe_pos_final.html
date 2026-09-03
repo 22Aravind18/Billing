@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Café POS — Offline Billing</title>
+<style>
+:root{--bg:#f5f3ef;--card:#fff;--ink:#25221f;--muted:#77706a;--line:#e7e1da;--accent:#6f4e37;--accent2:#9b6b45;--danger:#b42318;--ok:#16834b;--shadow:0 8px 30px #2c20150f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{min-height:100vh;display:flex}
+aside{width:235px;background:#211b17;color:#fff;position:fixed;inset:0 auto 0 0;padding:22px 14px;z-index:10;transform:translateX(0);transition:.2s}
+.brand{padding:6px 10px 22px}.brand b{font-size:20px}.brand small{display:block;color:#b9afa7;margin-top:3px}
+nav button{width:100%;background:transparent;color:#ddd4cd;text-align:left;padding:12px 13px;border-radius:10px;margin:2px 0}nav button:hover,nav button.active{background:#3a2e26;color:#fff}
+main{margin-left:235px;width:calc(100% - 235px);min-height:100vh}.top{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:5}
+.top .menu{display:none}.page{padding:22px;max-width:1400px;margin:auto}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);padding:17px}.stat b{font-size:23px;display:block;margin-top:5px}.muted{color:var(--muted)}.title{font-size:24px;margin:0 0 4px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}
+.btn{padding:10px 14px;border-radius:10px;background:#eee8e2;color:var(--ink);font-weight:600}.btn.primary{background:var(--accent);color:#fff}.btn.danger{background:#fff0ee;color:var(--danger)}.btn.ok{background:#eaf7f0;color:var(--ok)}.btn:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid #d9d2cb;border-radius:9px;background:#fff;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.field{display:grid;gap:6px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}th{font-size:12px;text-transform:uppercase;color:var(--muted)}.scroll{overflow:auto}
+.product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-height:calc(100vh - 260px);overflow:auto}.prod{padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff;text-align:left}.prod:hover{border-color:var(--accent)}.prod b{display:block}.prod small{color:var(--muted)}
+.bill-layout{display:grid;grid-template-columns:1.25fr .9fr;gap:16px}.bill-items{min-height:220px}.empty{text-align:center;padding:38px;color:var(--muted)}.qty{display:flex;align-items:center;gap:6px}.qty button{width:28px;height:28px;border-radius:7px;background:#eee8e2}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#f0ece7;font-size:12px}.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:15px;z-index:30}.modal.show{display:flex}.modalbox{background:#fff;border-radius:16px;max-width:600px;width:100%;max-height:90vh;overflow:auto;padding:20px}.toast{position:fixed;right:18px;bottom:18px;background:#211b17;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:50}
+.kpi{font-size:12px;color:var(--muted)}.receipt{width:300px;margin:auto;font-family:monospace;font-size:12px}.receipt h2{text-align:center;margin:0}.receipt p{margin:4px 0}.receipt .center{text-align:center}.receipt hr{border:0;border-top:1px dashed #000;margin:8px 0}.receipt table{font-family:monospace}.receipt td{padding:3px 0;border:0}.receipt .right{text-align:right}.receipt .total td{font-weight:bold;border-top:1px dashed #000;padding-top:7px}
+@media(max-width:900px){aside{width:220px;transform:translateX(-100%);box-shadow:20px 0 50px #0003}aside.open{transform:none}main{margin-left:0;width:100%}.top .menu{display:block}.stats{grid-template-columns:repeat(2,1fr)}.bill-layout{grid-template-columns:1fr}.product-grid{grid-template-columns:repeat(2,1fr);max-height:430px}}
+@media(max-width:600px){.page{padding:14px}.top{padding:0 14px}.fields,.fields.three{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.product-grid{grid-template-columns:1fr 1fr}.card{padding:13px}.title{font-size:20px}th,td{padding:9px 6px}.hide-sm{display:none!important}}
+@media print{body{background:#fff}.no-print{display:none!important}.print-area{display:block!important}.receipt{width:72mm}.modal{position:static;background:#fff;padding:0}.modalbox{box-shadow:none;max-width:none;padding:0;max-height:none}.modalbox>*:not(.print-area){display:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside id="side">
+ <div class="brand"><b id="brandName">Café POS</b><small>Offline billing</small></div>
+ <nav>
+  <button class="active" data-page="billing">🧾 New Bill</button>
+  <button data-page="bills">🕘 Bills</button>
+  <button data-page="inventory">📦 Inventory</button>
+  <button data-page="admin">⚙️ Admin</button>
+ </nav>
+ <div style="position:absolute;bottom:18px;left:14px;right:14px;color:#9f958e;font-size:12px">All data stays on this device.</div>
+</aside>
+<main>
+ <header class="top"><button class="menu btn" onclick="toggleSide()">☰</button><div><b id="topShop">Café POS</b><span class="muted" id="roleText"> · Biller</span></div><button class="btn" onclick="showAbout()">?</button></header>
+ <section class="page" id="page"></section>
+</main>
+</div>
+<div class="modal" id="modal"><div class="modalbox" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='cafe_pos_v1';
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ settings:{name:'My Coffee Shop',address:'',gstin:'',phone:'',email:'',gst:5,prefix:'INV',pin:'1234'},
+ products:[
+  {id:id(),name:'Espresso',price:90,stock:100,category:'Coffee',gst:5},
+  {id:id(),name:'Cappuccino',price:140,stock:100,category:'Coffee',gst:5},
+  {id:id(),name:'Latte',price:150,stock:100,category:'Coffee',gst:5},
+  {id:id(),name:'Cold Coffee',price:160,stock:80,category:'Beverage',gst:5},
+  {id:id(),name:'Masala Tea',price:70,stock:100,category:'Tea',gst:5},
+  {id:id(),name:'Veg Sandwich',price:130,stock:50,category:'Food',gst:5}
+ ],
+ bills:[], next:1
+};
+let cart=[], page='billing', isAdmin=false, editBill=null;
+const IDB={name:'CafePOSDB',version:1,store:'state'}; let idb=null;
+function openDB(){return new Promise(resolve=>{if(!('indexedDB' in window))return resolve(null);const r=indexedDB.open(IDB.name,IDB.version);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(IDB.store))d.createObjectStore(IDB.store)};r.onsuccess=()=>{idb=r.result;resolve(r.result)};r.onerror=()=>resolve(null)})}
+function idbGet(){return new Promise(resolve=>{if(!idb)return resolve(null);const r=idb.transaction(IDB.store,'readonly').objectStore(IDB.store).get('app');r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>resolve(null)})}
+function idbPut(v){return new Promise(resolve=>{if(!idb)return resolve();const r=idb.transaction(IDB.store,'readwrite').objectStore(IDB.store).put(v,'app');r.onsuccess=()=>resolve();r.onerror=()=>resolve()})}
+async function initStorage(){await openDB();const saved=await idbGet();if(saved&&saved.products&&saved.bills){db=saved;localStorage.setItem(KEY,JSON.stringify(db))}else await idbPut(db);render()}
+render(); initStorage();
+function id(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));idbPut(db)}
+function money(n){return '₹'+Number(n||0).toFixed(2)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function toast(t){let x=document.getElementById('toast');x.textContent=t;x.style.display='block';setTimeout(()=>x.style.display='none',1800)}
+function toggleSide(){document.getElementById('side').classList.toggle('open')}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{page=b.dataset.page;document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b));render();toggleSide()});
+function render(){document.getElementById('brandName').textContent=db.settings.name||'Café POS';document.getElementById('topShop').textContent=db.settings.name||'Café POS';document.getElementById('roleText').textContent=isAdmin?' · Admin':' · Biller';let p=document.getElementById('page');p.innerHTML=({billing:billing,bills:bills,inventory:inventory,admin:admin}[page])();bindPage()}
+function billing(){
+ let sub=cart.reduce((s,x)=>s+x.price*x.qty,0), gst=cart.reduce((s,x)=>s+x.price*x.qty*(x.gst/100),0), total=sub+gst;
+ return `<div class="row between"><div><h1 class="title">New Bill</h1><div class="muted">Tap an item to add it to the bill.</div></div><button class="btn" onclick="clearCart()">Clear</button></div>
+ <div class="bill-layout" style="margin-top:16px"><div class="card"><div class="row"><input id="prodSearch" placeholder="Search coffee, tea, food…" style="flex:1"><select id="cat" style="width:auto"><option>All</option>${[...new Set(db.products.map(x=>x.category))].map(x=>`<option>${esc(x)}</option>`).join('')}</select></div><div class="product-grid" id="products" style="margin-top:12px">${productButtons()}</div></div>
+ <div class="card"><div class="row between"><b>Current Bill</b><span class="pill">${cart.reduce((s,x)=>s+x.qty,0)} items</span></div><div class="bill-items">${cart.length?cart.map((x,i)=>`<div class="row between" style="padding:12px 0;border-bottom:1px solid var(--line)"><div style="flex:1"><b>${esc(x.name)}</b><small class="muted"> · ${money(x.price)} + ${x.gst}% GST</small></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${i},1)">+</button></div><b style="min-width:75px;text-align:right">${money(x.price*x.qty*(1+x.gst/100))}</b></div>`).join(''):`<div class="empty">No items yet ☕</div>`}</div>
+ <div style="border-top:1px solid var(--line);padding-top:12px"><label class="field" style="margin-bottom:10px">Payment<select id="payment"><option>Cash</option><option>UPI</option><option>Card</option><option>Credit</option></select></label><div class="row between"><span>Subtotal</span><b>${money(sub)}</b></div><div class="row between"><span>GST</span><b>${money(gst)}</b></div><div class="row between" style="font-size:20px;margin-top:8px"><b>Total</b><b>${money(total)}</b></div><button class="btn primary" style="width:100%;margin-top:14px" onclick="checkout()" ${cart.length?'':'disabled'}>Create Bill · ${money(total)}</button></div></div></div>`;
+}
+function productButtons(){
+ let q=(document.getElementById('prodSearch')?.value||'').toLowerCase(), c=document.getElementById('cat')?.value||'All';
+ return db.products.filter(p=>(p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q))&&(c==='All'||p.category===c)).map(p=>`<button type="button" class="prod" data-product-id="${esc(p.id)}"><b>${esc(p.name)}</b><small>${esc(p.category)} · ${money(p.price)} · GST ${p.gst}%</small><small>Stock: ${p.stock}</small></button>`).join('')||'<div class="empty">No products found</div>';
+}
+function bindPage(){let grid=document.getElementById('products');if(grid)grid.onclick=e=>{const b=e.target.closest('[data-product-id]');if(b)add(b.dataset.productId)};let s=document.getElementById('prodSearch');if(s){s.oninput=()=>document.getElementById('products').innerHTML=productButtons();document.getElementById('cat').onchange=()=>document.getElementById('products').innerHTML=productButtons()}}
+function add(pid){let p=db.products.find(x=>x.id===pid);if(!p||p.stock<=0)return toast('Out of stock');let x=cart.find(x=>x.id===pid);if(x){if(x.qty>=p.stock)return toast('Not enough stock');x.qty++}else cart.push({...p,qty:1});render()}
+function changeQty(i,d){let x=cart[i];x.qty+=d;if(x.qty<=0)cart.splice(i,1);render()}
+function clearCart(){cart=[];render()}
+function checkout(){
+ if(!cart.length)return;let subtotal=cart.reduce((s,x)=>s+x.price*x.qty,0),gst=cart.reduce((s,x)=>s+x.price*x.qty*x.gst/100,0),total=subtotal+gst;
+ let bill={id:id(),no:`${db.settings.prefix||'INV'}-${String(db.next++).padStart(5,'0')}`,date:new Date().toISOString(),items:cart.map(x=>({...x})),subtotal,gst,total,payment:document.getElementById('payment')?.value||'Cash'};
+ bill.items.forEach(x=>{let p=db.products.find(p=>p.id===x.id);if(p)p.stock=Math.max(0,p.stock-x.qty)});db.bills.unshift(bill);save();cart=[];render();openReceipt(bill,true)
+}
+function bills(){
+ let total=db.bills.reduce((s,b)=>s+b.total,0);
+ return `<div class="row between"><div><h1 class="title">Bills & Sales</h1><div class="muted">${db.bills.length} bills · ${money(total)} total sales</div></div><button class="btn" onclick="exportCSV()">Export CSV</button></div>
+ <div class="card" style="margin-top:16px"><input id="billSearch" placeholder="Search bill number or date…"><div class="scroll" style="margin-top:10px"><table><thead><tr><th>Bill</th><th>Date</th><th>Items</th><th>Total</th><th></th></tr></thead><tbody>${db.bills.map(b=>`<tr><td><b>${esc(b.no)}</b></td><td>${new Date(b.date).toLocaleString('en-IN')}</td><td>${b.items.reduce((s,x)=>s+x.qty,0)}</td><td><b>${money(b.total)}</b></td><td><button class="btn" onclick="openReceiptById('${b.id}',false)">View</button> <button class="btn" onclick="rebill('${b.id}')">Rebill</button>${isAdmin?` <button class="btn danger" onclick="deleteBill('${b.id}')">Delete</button>`:''}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function inventory(){
+ if(!isAdmin)return lock('Inventory');
+ return `<div class="row between"><div><h1 class="title">Inventory</h1><div class="muted">Manage menu items, pricing, GST and stock.</div></div><button class="btn primary" onclick="productForm()">+ Add item</button></div>
+ <div class="card" style="margin-top:16px"><div class="scroll"><table><thead><tr><th>Item</th><th>Category</th><th>Price</th><th>GST</th><th>Stock</th><th></th></tr></thead><tbody>${db.products.map(p=>`<tr><td><b>${esc(p.name)}</b></td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td>${p.gst}%</td><td>${p.stock}</td><td><button class="btn" onclick="productForm('${p.id}')">Edit</button> <button class="btn danger" onclick="deleteProduct('${p.id}')">Delete</button></td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function admin(){
+ if(!isAdmin)return `<div class="card" style="max-width:500px;margin:50px auto"><h1 class="title">Admin access</h1><p class="muted">Admin controls are protected by a PIN.</p><input id="pin" type="password" inputmode="numeric" placeholder="Enter admin PIN"><button class="btn primary" style="width:100%;margin-top:10px" onclick="login()">Unlock Admin</button></div>`;
+ let s=db.settings;
+ return `<div><h1 class="title">Admin</h1><div class="muted">Shop settings, data and access controls.</div></div><div class="grid stats" style="margin-top:16px"><div class="card stat"><span class="kpi">TODAY'S SALES</span><b>${money(db.bills.filter(x=>new Date(x.date).toDateString()===new Date().toDateString()).reduce((s,b)=>s+b.total,0))}</b></div><div class="card stat"><span class="kpi">BILLS</span><b>${db.bills.length}</b></div><div class="card stat"><span class="kpi">MENU ITEMS</span><b>${db.products.length}</b></div><div class="card stat"><span class="kpi">LOW STOCK</span><b>${db.products.filter(x=>x.stock<10).length}</b></div></div>
+ <div class="card" style="margin-top:16px"><h3>Shop details</h3><div class="fields"><label class="field">Shop name<input id="s_name" value="${esc(s.name)}"></label><label class="field">GSTIN<input id="s_gstin" value="${esc(s.gstin)}" placeholder="e.g. 33ABCDE1234F1Z5"></label><label class="field">Mobile<input id="s_phone" value="${esc(s.phone)}"></label><label class="field">Email<input id="s_email" value="${esc(s.email)}"></label></div><label class="field" style="margin-top:12px">Address<textarea id="s_address" rows="2">${esc(s.address)}</textarea></label><div class="fields three" style="margin-top:12px"><label class="field">Default GST %<input id="s_gst" type="number" min="0" max="100" value="${s.gst}"></label><label class="field">Bill prefix<input id="s_prefix" value="${esc(s.prefix)}"></label><div></div></div><button class="btn primary" style="margin-top:12px" onclick="saveSettings()">Save shop settings</button></div>
+ <div class="card" style="margin-top:16px"><h3>Data</h3><div class="row"><button class="btn" onclick="exportJSON()">Backup all data</button><button class="btn" onclick="importData()">Restore backup</button><button class="btn" onclick="exportCSV()">Export sales CSV</button><button class="btn" onclick="logout()">Lock Admin</button><button class="btn danger" onclick="wipe()">Delete ALL data</button></div></div>`;
+}
+function lock(n){return `<div class="card" style="max-width:500px;margin:50px auto;text-align:center"><div style="font-size:40px">🔒</div><h2>${n} is admin-only</h2><p class="muted">Open Admin and enter the PIN to manage this area.</p><button class="btn primary" onclick="page='admin';render()">Go to Admin</button></div>`}
+function login(){if((document.getElementById('pin').value||'')===getPin()){isAdmin=true;render();toast('Admin unlocked')}else toast('Wrong PIN')}
+function getPin(){return db.settings.pin||'1234'}
+function logout(){isAdmin=false;page='billing';render()}
+function saveSettings(){let s=db.settings;s.name=document.getElementById('s_name').value.trim()||'My Coffee Shop';s.gstin=document.getElementById('s_gstin').value.trim();s.phone=document.getElementById('s_phone').value.trim();s.email=document.getElementById('s_email').value.trim();s.address=document.getElementById('s_address').value.trim();s.gst=+document.getElementById('s_gst').value||0;s.prefix=document.getElementById('s_prefix').value.trim()||'INV';save();render();toast('Settings saved')}
+function productForm(pid){
+ let p=pid?db.products.find(x=>x.id===pid):{name:'',category:'Coffee',price:0,stock:0,gst:db.settings.gst};
+ modal(`<h2>${pid?'Edit':'Add'} menu item</h2><div class="fields"><label class="field">Name<input id="p_name" value="${esc(p.name)}"></label><label class="field">Category<input id="p_cat" value="${esc(p.category)}"></label><label class="field">Price<input id="p_price" type="number" min="0" step=".01" value="${p.price}"></label><label class="field">Stock<input id="p_stock" type="number" min="0" value="${p.stock}"></label><label class="field">GST %<input id="p_gst" type="number" min="0" max="100" value="${p.gst}"></label></div><div class="row" style="margin-top:16px"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveProduct('${pid||''}')">Save</button></div>`)
+}
+function saveProduct(pid){let p=pid?db.products.find(x=>x.id===pid):{id:id()};p.name=document.getElementById('p_name').value.trim();p.category=document.getElementById('p_cat').value.trim()||'Other';p.price=+document.getElementById('p_price').value||0;p.stock=+document.getElementById('p_stock').value||0;p.gst=+document.getElementById('p_gst').value||0;if(!p.name)return toast('Name required');if(!pid)db.products.push(p);save();closeModal();render();toast('Item saved')}
+function deleteProduct(pid){if(!isAdmin)return;if(confirm('Delete this menu item?')){db.products=db.products.filter(p=>p.id!==pid);save();render()}}
+function deleteBill(id){if(!isAdmin)return;if(confirm('Delete this bill permanently? Inventory will not be restored.')){db.bills=db.bills.filter(b=>b.id!==id);save();render();toast('Bill deleted')}}
+function rebill(id){let b=db.bills.find(x=>x.id===id);if(!b)return;cart=b.items.map(x=>({...x}));page='billing';render();toast('Bill copied to new bill')}
+let currentReceipt=null;
+function openReceiptById(id){let b=db.bills.find(x=>x.id===id);if(b)openReceipt(b,false)}
+function receiptHTML(b){
+ let gstin=db.settings.gstin?`GSTIN: ${esc(db.settings.gstin)}`:'';
+ return `<div class="receipt"><h2>${esc(db.settings.name)}</h2><div class="center">${esc(db.settings.address)}</div><div class="center">${esc(db.settings.phone)} ${db.settings.email?'· '+esc(db.settings.email):''}</div><div class="center">${gstin}</div><hr><p>Bill: ${esc(b.no)}</p><p>Date: ${new Date(b.date).toLocaleString('en-IN')}</p><hr><table>${b.items.map(x=>`<tr><td>${esc(x.name)} x${x.qty}</td><td class="right">${money(x.price*x.qty)}</td></tr>`).join('')}</table><hr><table><tr><td>Subtotal</td><td class="right">${money(b.subtotal)}</td></tr><tr><td>GST</td><td class="right">${money(b.gst)}</td></tr><tr class="total"><td>TOTAL</td><td class="right">${money(b.total)}</td></tr></table><p>Payment: ${esc(b.payment||'Cash')}</p><p class="center" style="margin-top:14px">Thank you! ☕ Visit again.</p></div>`;
+}
+function openReceipt(b,created){
+ currentReceipt=b;
+ modal(`<div class="no-print row between"><b>${created?'Bill created':'Bill preview'}</b><div><button class="btn primary" onclick="printCurrentReceipt()">🖨 Print Bill</button><button class="btn" onclick="closeModal()">Close</button></div></div><div style="margin-top:15px;background:#fafafa;padding:20px;border-radius:12px">${receiptHTML(b)}</div>`)
+}
+function printCurrentReceipt(){
+ if(!currentReceipt)return;
+ const w=window.open('','_blank','width=420,height=700');
+ if(!w){toast('Please allow pop-ups to print the bill');return;}
+ w.document.write(`<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHTML(currentReceipt.no)}</title><style>body{margin:0;background:#fff;color:#000;font-family:monospace;font-size:12px}.receipt{width:72mm;margin:0 auto;padding:4mm 0}.receipt h2{text-align:center;margin:0 0 4px}.center{text-align:center}.receipt hr{border:0;border-top:1px dashed #000;margin:8px 0}.receipt table{width:100%;border-collapse:collapse;font-family:monospace}.receipt td{border:0;padding:3px 0}.right{text-align:right}.total td{border-top:1px dashed #000;padding-top:7px;font-weight:bold}</style></head><body>${receiptHTML(currentReceipt)}<script>window.onload=function(){window.print();setTimeout(function(){window.close()},500)}<\/script></body></html>`);
+ w.document.close();
+}
+function modal(h){document.getElementById('modalBox').innerHTML=h;document.getElementById('modal').classList.add('show')}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function showAbout(){modal(`<h2>Offline Café POS</h2><p class="muted">Single-file billing app. Bills, menu and settings are stored locally on this device.</p><p><b>Default admin PIN:</b> 1234</p><p class="muted">Change the PIN by editing the backup data if needed; for a production deployment, use stronger authentication.</p><button class="btn" onclick="closeModal()">Close</button>`)}
+function exportJSON(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`cafe-pos-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)}
+function importData(){let i=document.createElement('input');i.type='file';i.accept='.json,application/json';i.onchange=()=>{let f=i.files[0],r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.settings||!Array.isArray(x.products)||!Array.isArray(x.bills))throw 0;db=x;save();idbPut(db);render();toast('Backup restored')}catch(e){toast('Invalid backup')}};r.readAsText(f)};i.click()}
+function exportCSV(){let rows=[['Bill No','Date','Items','Subtotal','GST','Total','Payment']];db.bills.forEach(b=>rows.push([b.no,new Date(b.date).toLocaleString('en-IN'),b.items.map(x=>`${x.name} x${x.qty}`).join(' | '),b.subtotal,b.gst,b.total,b.payment]));let csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\\n');let blob=new Blob([csv],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`sales-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href)}
+function wipe(){if(confirm('This will permanently erase all bills, products and settings. Continue?')){localStorage.removeItem(KEY);location.reload()}}
+</script>
+</body>
+</html>
