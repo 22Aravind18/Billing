@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Khata Billing</title>
+<meta name="theme-color" content="#0B2E2F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Khata">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --paper:#F5F2EA;
+  --panel:#FFFFFF;
+  --panel-alt:#FBF9F3;
+  --ink:#1B2523;
+  --ink-soft:#5E6E6A;
+  --ink-faint:#8B9895;
+  --teal-900:#0B2E2F;
+  --teal-800:#123F40;
+  --teal-700:#175355;
+  --teal-500:#1F6D6F;
+  --brass-600:#A8791F;
+  --brass-500:#C08A2E;
+  --brass-100:#F3E4C2;
+  --line:#E4E0D2;
+  --line-soft:#EDEAE0;
+  --danger:#B23B2E;
+  --danger-bg:#FBE9E5;
+  --ok:#2E7D53;
+  --ok-bg:#E7F3EB;
+  --radius-lg:16px;
+  --radius-md:11px;
+  --radius-sm:8px;
+  --shadow-card:0 1px 2px rgba(15,45,45,.06), 0 1px 1px rgba(15,45,45,.04);
+  --shadow-pop:0 18px 40px rgba(9,35,36,.18);
+  --font-display:Georgia,'Iowan Old Style','Palatino Linotype',serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  background:var(--paper);
+  color:var(--ink);
+  -webkit-tap-highlight-color:transparent;
+  overscroll-behavior-y:contain;
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;font-size:1rem;color:inherit;}
+button{cursor:pointer;}
+h1,h2,h3{margin:0 0 .35em 0;font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;color:var(--teal-900);}
+.hidden{display:none !important;}
+.tabular{font-variant-numeric:tabular-nums;}
+a{color:inherit;}
+:focus-visible{outline:2px solid var(--teal-500);outline-offset:2px;}
+
+/* ---------- LOGIN ---------- */
+#loginScreen{ min-height:100vh; display:flex; }
+.loginHero{
+  display:none;flex:1 1 46%;
+  background:radial-gradient(circle at 20% 15%, rgba(192,138,46,.20), transparent 45%), linear-gradient(165deg, var(--teal-900), var(--teal-800) 60%, var(--teal-700));
+  color:#EAF3F1;padding:56px 52px;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;
+}
+.loginHero::before{ content:"";position:absolute;inset:0; background-image:repeating-linear-gradient(180deg, transparent 0 33px, rgba(255,255,255,.05) 33px 34px); pointer-events:none; }
+@media(min-width:840px){ .loginHero{display:flex;} }
+.heroMark{display:flex;align-items:center;gap:12px;position:relative;}
+.heroMark .glyph{ width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18); display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.5rem;color:var(--brass-100); }
+.heroMark .wordmark{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:#fff;}
+.heroBody{position:relative;max-width:360px;}
+.heroBody h1{color:#fff;font-size:2.1rem;line-height:1.2;margin-bottom:14px;}
+.heroBody p{color:#BFD6D3;font-size:.95rem;line-height:1.6;}
+.heroFoot{position:relative;font-size:.72rem;color:#7FA19D;letter-spacing:.02em;}
+.loginPane{flex:1 1 54%;display:flex;align-items:center;justify-content:center;padding:32px 22px;}
+.loginCard{width:100%;max-width:380px;}
+.loginCard .mobileMark{display:flex;align-items:center;gap:10px;margin-bottom:26px;}
+@media(min-width:840px){ .loginCard .mobileMark{display:none;} }
+.loginCard .mobileMark .glyph{ width:38px;height:38px;border-radius:10px;background:var(--teal-900);color:var(--brass-100); display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.2rem; }
+.loginCard .mobileMark .name{font-family:var(--font-display);font-weight:700;font-size:1.15rem;color:var(--teal-900);}
+.loginTitle{font-size:1.5rem;margin-bottom:4px;}
+.loginSub{color:var(--ink-soft);font-size:.88rem;margin-bottom:24px;}
+.roleTabs{display:flex;background:var(--panel-alt);border:1px solid var(--line);border-radius:10px;padding:4px;margin-bottom:20px;}
+.roleTabs button{flex:1;border:0;background:transparent;padding:10px 0;border-radius:7px;font-weight:600;font-size:.88rem;color:var(--ink-soft);transition:background .15s,color .15s;}
+.roleTabs button.active{background:var(--teal-900);color:#fff;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:.76rem;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.01em;}
+.field input,.field select{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);transition:border-color .15s;}
+.field input:focus,.field select:focus{border-color:var(--teal-500);outline:none;box-shadow:0 0 0 3px rgba(31,109,111,.12);}
+.btn{border:0;border-radius:9px;padding:12px 18px;font-weight:600;font-size:.92rem;background:var(--teal-900);color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:filter .12s, transform .05s, box-shadow .15s;}
+.btn:hover{filter:brightness(1.12);}
+.btn:active{transform:scale(.98);}
+.btn.block{width:100%;}
+.btn.gold{background:linear-gradient(180deg,#CC9B3D,var(--brass-500));color:#2B1F06;box-shadow:0 3px 10px rgba(192,138,46,.35);}
+.btn.ghost{background:transparent;color:var(--teal-800);border:1px solid var(--line);}
+.btn.subtle{background:var(--panel-alt);color:var(--ink);border:1px solid var(--line);}
+.btn.danger{background:var(--danger);color:#fff;}
+.btn.sm{padding:8px 13px;font-size:.82rem;border-radius:7px;}
+.btn:disabled{opacity:.42;cursor:not-allowed;filter:none;box-shadow:none;}
+.loginErr{color:var(--danger);font-size:.82rem;margin-top:10px;min-height:1.1em;font-weight:600;}
+.loginHint{font-size:.74rem;color:var(--ink-faint);margin-top:20px;line-height:1.6;text-align:center;background:var(--panel-alt);border:1px dashed var(--line);border-radius:9px;padding:10px 12px;}
+
+/* ---------- APP SHELL ---------- */
+#app{display:none;height:100vh;overflow:hidden;flex-direction:column;}
+#app.show{display:flex;}
+.topbar{height:58px;flex:0 0 auto;background:linear-gradient(180deg, var(--teal-800), var(--teal-900));color:#fff;display:flex;align-items:center;gap:10px;padding:0 8px 0 6px;box-shadow:0 1px 0 rgba(0,0,0,.12);z-index:30;}
+.iconBtn{width:40px;height:40px;border:0;background:transparent;color:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;transition:background .15s;}
+.iconBtn:active,.iconBtn:hover{background:rgba(255,255,255,.12);}
+.topbar .shopName{font-family:var(--font-display);font-weight:700;font-size:1.06rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.topbar .pageTitle{font-size:.7rem;color:var(--brass-100);margin-top:-1px;letter-spacing:.01em;}
+.topbar .titleWrap{display:flex;flex-direction:column;overflow:hidden;flex:1;}
+.roleChip{font-size:.65rem;font-weight:700;letter-spacing:.04em;background:rgba(255,255,255,.14);padding:5px 10px;border-radius:20px;flex:0 0 auto;border:1px solid rgba(255,255,255,.14);}
+.shell{flex:1;display:flex;min-height:0;position:relative;}
+.sidebar{position:fixed;top:58px;left:0;bottom:0;width:256px;background:var(--teal-900);color:#EAF3F1;transform:translateX(-100%);transition:transform .24s cubic-bezier(.4,0,.2,1);z-index:40;display:flex;flex-direction:column;padding:16px 0;box-shadow:2px 0 24px rgba(0,0,0,.18);}
+.sidebar.open{transform:translateX(0);}
+.navSection{padding:0 20px;margin:6px 0 8px;font-size:.66rem;text-transform:uppercase;letter-spacing:.08em;color:#5F8683;font-weight:700;}
+.sidebar a{display:flex;align-items:center;gap:12px;padding:12px 20px;color:#CFE3E0;text-decoration:none;font-weight:600;font-size:.9rem;border-left:3px solid transparent;margin:1px 0;transition:background .15s,color .15s;}
+.sidebar a svg{flex:0 0 auto;opacity:.8;}
+.sidebar a:hover{background:rgba(255,255,255,.05);}
+.sidebar a.active{background:rgba(243,228,194,.09);color:#fff;border-left-color:var(--brass-500);}
+.sidebar a.active svg{opacity:1;color:var(--brass-100);}
+.sidebar .navFooter{margin-top:auto;padding:16px 20px 4px;font-size:.68rem;color:#5F8683;border-top:1px solid rgba(255,255,255,.08);line-height:1.6;}
+.overlay{position:fixed;inset:0;top:58px;background:rgba(8,20,20,.4);z-index:35;opacity:0;pointer-events:none;transition:opacity .2s;}
+.overlay.show{opacity:1;pointer-events:auto;}
+.pages{flex:1;min-width:0;overflow-y:auto;padding:18px;padding-bottom:96px;}
+.page{max-width:1160px;margin:0 auto;}
+.pageHeading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.pageHeading h2{font-size:1.35rem;margin-bottom:2px;}
+.pageHeading .sub{font-size:.82rem;color:var(--ink-soft);}
+
+/* ---------- BILLING PAGE ---------- */
+.billGrid{display:flex;flex-direction:column;gap:16px;}
+@media(min-width:940px){ .billGrid{display:grid;grid-template-columns:1.4fr 1fr;align-items:start;gap:18px;} }
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);overflow:hidden;}
+.panelHead{padding:15px 18px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--panel-alt);}
+.panelHead h3{font-size:1rem;color:var(--teal-900);margin:0;}
+.panelBody{padding:16px 18px;}
+.searchRow{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line-soft);position:relative;}
+.searchRow svg{position:absolute;left:30px;top:50%;transform:translateY(-50%);color:var(--ink-faint);pointer-events:none;}
+.searchRow input{flex:1;padding:11px 14px 11px 38px;border:1px solid var(--line);border-radius:9px;background:var(--panel-alt);}
+.searchRow input:focus{background:#fff;}
+.catChips{display:flex;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line-soft);overflow-x:auto;}
+.catChip{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 14px;font-size:.8rem;font-weight:600;color:var(--ink-soft);white-space:nowrap;transition:background .12s,color .12s,border-color .12s;}
+.catChip.active{background:var(--teal-900);color:#fff;border-color:var(--teal-900);}
+.prodGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:11px;padding:16px 18px;max-height:50vh;overflow-y:auto;}
+.prodCard{border:1px solid var(--line);border-radius:var(--radius-md);padding:12px 12px 11px;text-align:left;background:#fff;display:flex;flex-direction:column;gap:6px;min-height:84px;position:relative;transition:border-color .15s, transform .05s, box-shadow .15s;}
+.prodCard::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:0 3px 3px 0;background:var(--catcolor,var(--brass-500));opacity:.7;}
+.prodCard:hover{border-color:var(--teal-500);box-shadow:0 4px 14px rgba(15,45,45,.08);}
+.prodCard:active{transform:scale(.97);background:var(--brass-100);}
+.prodCard .pn{font-weight:600;font-size:.87rem;line-height:1.3;padding-left:6px;}
+.prodCard .pp{color:var(--teal-700);font-weight:700;font-size:.92rem;font-variant-numeric:tabular-nums;padding-left:6px;}
+.prodCard .ps{font-size:.68rem;color:var(--ink-faint);padding-left:6px;}
+.prodCard .ps.low{color:var(--danger);font-weight:700;}
+.prodCard:disabled{opacity:.4;}
+.emptyState{padding:40px 20px;text-align:center;color:var(--ink-soft);}
+.emptyState svg{color:var(--line);margin-bottom:10px;}
+.emptyState .t{font-weight:600;color:var(--ink);margin-bottom:3px;font-size:.92rem;}
+.emptyState .d{font-size:.8rem;color:var(--ink-faint);}
+
+.cartTabs{display:flex;align-items:center;gap:6px;padding:12px 12px 0;overflow-x:auto;background:var(--panel-alt);}
+.cartTab{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 13px;border-radius:9px 9px 0 0;background:#EFEBDD;color:var(--ink-soft);font-size:.82rem;font-weight:600;border:1px solid var(--line-soft);border-bottom:none;}
+.cartTab.active{background:var(--panel);color:var(--teal-900);}
+.cartTab .cnt{background:rgba(0,0,0,.08);border-radius:10px;padding:1px 6px;font-size:.7rem;}
+.cartTab.active .cnt{background:var(--brass-100);color:var(--brass-600);}
+.cartTab .xClose{border:0;background:transparent;color:inherit;opacity:.55;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:.7rem;}
+.cartTab .xClose:hover{opacity:1;background:rgba(0,0,0,.08);}
+.newCartBtn{flex:0 0 auto;border:1px dashed var(--line);background:transparent;color:var(--ink-soft);width:32px;height:32px;border-radius:8px;font-size:1.1rem;margin-bottom:2px;}
+.newCartBtn:hover{border-color:var(--teal-500);color:var(--teal-700);}
+
+.cartList{max-height:28vh;overflow-y:auto;}
+.cartRow{display:flex;align-items:center;gap:9px;padding:11px 18px;border-bottom:1px solid var(--line-soft);animation:rowIn .18s ease;}
+@keyframes rowIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+.cartRow .ci{flex:1;min-width:0;}
+.cartRow .ci .n{font-weight:600;font-size:.87rem;}
+.cartRow .ci .p{font-size:.72rem;color:var(--ink-faint);}
+.qtyBox{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:0 0 auto;background:var(--panel-alt);}
+.qtyBox button{width:27px;height:27px;border:0;background:transparent;font-size:1.05rem;line-height:1;color:var(--teal-800);font-weight:600;}
+.qtyBox button:active{background:var(--line-soft);}
+.qtyBox span{width:26px;text-align:center;font-size:.85rem;font-weight:700;}
+.lineTotal{width:68px;text-align:right;font-weight:700;font-size:.86rem;flex:0 0 auto;color:var(--teal-900);}
+.rmBtn{border:0;background:transparent;color:var(--danger);width:26px;height:26px;flex:0 0 auto;font-size:1.05rem;border-radius:6px;}
+.rmBtn:hover{background:var(--danger-bg);}
+
+.sumRow{display:flex;justify-content:space-between;padding:6px 0;font-size:.87rem;color:var(--ink-soft);}
+.sumRow.grand{font-size:1.28rem;font-weight:800;color:var(--teal-900);border-top:1px dashed var(--line);margin-top:8px;padding-top:12px;font-family:var(--font-display);}
+.custFields{display:flex;gap:8px;padding:14px 18px 0 18px;}
+.custFields input{flex:1;padding:10px 11px;border:1px solid var(--line);border-radius:8px;font-size:.85rem;background:var(--panel-alt);}
+.custFields input:focus{background:#fff;}
+.checkoutBar{padding:14px 18px 18px;}
+
+.switchRow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;margin-bottom:6px;}
+.switchRow .lbl{font-size:.85rem;font-weight:600;color:var(--ink);}
+.switch{position:relative;width:42px;height:24px;flex:0 0 auto;}
+.switch input{opacity:0;width:100%;height:100%;margin:0;position:absolute;cursor:pointer;z-index:1;}
+.switchTrack{position:absolute;inset:0;background:var(--line);border-radius:20px;transition:background .15s;}
+.switchThumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s;}
+.switch input:checked ~ .switchTrack{background:var(--teal-700);}
+.switch input:checked ~ .switchThumb{transform:translateX(18px);}
+.splitFields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.splitFields .field{margin-bottom:0;}
+.splitFields label{font-size:.68rem;}
+.splitFields input{padding:9px 8px;font-size:.83rem;}
+.remainingNote{font-size:.76rem;text-align:right;margin:-4px 0 10px;font-weight:600;}
+.remainingNote.ok{color:var(--ok);}
+.remainingNote.bad{color:var(--danger);}
+
+/* ---------- TABLES ---------- */
+.tableWrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.86rem;}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line-soft);white-space:nowrap;}
+th{color:var(--ink-soft);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;background:var(--panel-alt);position:sticky;top:0;}
+tbody tr{transition:background .1s;}
+tbody tr:hover{background:var(--panel-alt);}
+.pill{padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:700;display:inline-block;}
+.pill.low{background:var(--danger-bg);color:var(--danger);}
+.pill.ok{background:var(--ok-bg);color:var(--ok);}
+.pill.neutral{background:var(--panel-alt);color:var(--ink-soft);border:1px solid var(--line);}
+.rowBtns{display:flex;gap:6px;}
+.rowBtns button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:7px 11px;font-size:.76rem;font-weight:600;color:var(--teal-800);transition:background .12s;}
+.rowBtns button:hover{background:var(--panel-alt);}
+.rowBtns button.dl{color:var(--danger);border-color:#F0CCC5;}
+.rowBtns button.dl:hover{background:var(--danger-bg);}
+.filterBar{display:flex;flex-wrap:wrap;gap:8px;padding:14px 18px;border-bottom:1px solid var(--line-soft);background:var(--panel-alt);}
+.filterBar input,.filterBar select{padding:9px 11px;border:1px solid var(--line);border-radius:8px;font-size:.83rem;background:#fff;}
+
+.fab{position:fixed;right:18px;bottom:24px;z-index:20;width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#CC9B3D,var(--brass-500));color:#2B1F06;border:0;box-shadow:0 10px 24px rgba(160,110,20,.35);display:flex;align-items:center;justify-content:center;}
+.fab .badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:.65rem;font-weight:700;border-radius:20px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+
+/* ---------- FORMS / MODAL ---------- */
+.modalOverlay{position:fixed;inset:0;background:rgba(9,26,26,.5);display:flex;align-items:flex-end;justify-content:center;z-index:60;animation:fadeIn .15s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@media(min-width:640px){.modalOverlay{align-items:center;}}
+.modalCard{background:#fff;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:22px;box-shadow:var(--shadow-pop);animation:slideUp .2s cubic-bezier(.3,.6,.4,1);}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
+@media(min-width:640px){.modalCard{border-radius:16px;}}
+.modalHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.modalHead h3{color:var(--teal-900);margin:0;font-size:1.1rem;}
+.closeX{border:0;background:var(--panel-alt);width:32px;height:32px;border-radius:50%;font-size:1rem;color:var(--ink-soft);}
+.closeX:hover{background:var(--line-soft);}
+.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.formGrid .full{grid-column:1/-1;}
+.formGrid .field{margin-bottom:0;}
+.modalActions{display:flex;gap:10px;margin-top:20px;}
+.modalActions .btn{flex:1;}
+
+/* ---------- SETTINGS / VENDOR MGMT ---------- */
+.settingsCard{max-width:600px;}
+.settingsGrid{display:grid;gap:16px;}
+@media(min-width:900px){.settingsGrid{grid-template-columns:1fr 1fr;align-items:start;}}
+.dangerZone{border:1px solid #EFCCC4;background:var(--danger-bg);border-radius:var(--radius-lg);padding:16px 18px;}
+.dangerZone h3{color:var(--danger);font-size:.95rem;}
+.dangerZone p{font-size:.8rem;color:#8A4438;margin:4px 0 12px;line-height:1.5;}
+.backupRow{display:flex;gap:10px;flex-wrap:wrap;}
+.backupRow .btn{flex:1;min-width:140px;}
+.fileHint{font-size:.75rem;color:var(--ink-faint);margin-top:8px;}
+.miniList{display:flex;flex-direction:column;gap:8px;}
+.miniRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:9px;background:var(--panel-alt);}
+.miniRow .mn{font-weight:600;font-size:.87rem;}
+.miniRow .md{font-size:.74rem;color:var(--ink-faint);}
+.inlineForm{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.inlineForm input,.inlineForm select{flex:1;min-width:110px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:.85rem;}
+
+/* ---------- DASHBOARD ---------- */
+.periodPills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.periodPill{border:1px solid var(--line);background:#fff;border-radius:20px;padding:8px 16px;font-size:.83rem;font-weight:600;color:var(--ink-soft);}
+.periodPill.active{background:var(--teal-900);color:#fff;border-color:var(--teal-900);}
+.statGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(min-width:700px){ .statGrid{grid-template-columns:repeat(4,1fr);} }
+.statCard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow-card);}
+.statCard .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-faint);font-weight:700;margin-bottom:8px;}
+.statCard .val{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--teal-900);}
+.statCard.hero{grid-column:1/-1;background:linear-gradient(135deg,var(--teal-900),var(--teal-700));border:none;}
+.statCard.hero .lbl{color:var(--brass-100);}
+.statCard.hero .val{color:#fff;font-size:2.1rem;}
+.statCard.hero .sub{color:#BFD6D3;font-size:.78rem;margin-top:4px;}
+@media(min-width:700px){ .statCard.hero{grid-column:span 4;} }
+
+/* ---------- TOAST ---------- */
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--teal-900);color:#fff;padding:12px 22px;border-radius:30px;font-size:.85rem;font-weight:500;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:100;box-shadow:0 10px 28px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px;}
+#toast.show{opacity:1;transform:translate(-50%,0);}
+#toast.error{background:var(--danger);}
+
+/* ---------- RECEIPT / PRINT ---------- */
+#receiptModalOverlay .modalCard{max-width:380px;padding:18px;}
+.receipt.thermal{font-family:"Courier New",monospace;font-size:12px;color:#111;background:#fff;padding:8px 4px;max-width:300px;margin:0 auto;}
+.receipt.thermal.narrow{max-width:220px;font-size:11px;}
+.receipt.thermal .rc-shop{text-align:center;margin-bottom:6px;}
+.receipt.thermal .rc-shop .rn{font-weight:700;font-size:14px;}
+.receipt.thermal .rc-shop div{font-size:11px;}
+.receipt.thermal hr{border:none;border-top:1px dashed #333;margin:6px 0;}
+.receipt.thermal table{width:100%;border-collapse:collapse;font-size:11px;}
+.receipt.thermal th,.receipt.thermal td{border:none;padding:2px 0;white-space:normal;}
+.receipt.thermal .rItemName{width:44%;}
+.receipt.thermal .r-right{text-align:right;}
+.receipt.thermal .rc-tot div{display:flex;justify-content:space-between;font-size:11.5px;padding:1px 0;}
+.receipt.thermal .rc-tot .grand{font-weight:700;font-size:13px;border-top:1px dashed #333;margin-top:4px;padding-top:4px;}
+.receipt.thermal .rc-foot{text-align:center;margin-top:8px;font-size:11px;}
+
+.receipt.a4{font-family:var(--font-body);color:#182322;background:#fff;padding:20px;max-width:720px;margin:0 auto;}
+.receipt.a4 .a4-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #182322;padding-bottom:14px;margin-bottom:14px;}
+.receipt.a4 .a4-head h2{font-size:1.4rem;margin:0 0 4px;}
+.receipt.a4 .a4-head .meta{font-size:.8rem;color:#5E6E6A;line-height:1.5;}
+.receipt.a4 .a4-inv{text-align:right;font-size:.82rem;color:#5E6E6A;line-height:1.6;}
+.receipt.a4 .a4-inv b{color:#182322;font-size:.95rem;}
+.receipt.a4 table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:14px;}
+.receipt.a4 th{background:#F5F2EA;text-align:left;padding:8px 10px;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em;border-bottom:2px solid #E4E0D2;}
+.receipt.a4 td{padding:8px 10px;border-bottom:1px solid #EDEAE0;}
+.receipt.a4 .r-right{text-align:right;}
+.receipt.a4 .a4-totals{margin-left:auto;width:280px;}
+.receipt.a4 .a4-totals div{display:flex;justify-content:space-between;padding:5px 0;font-size:.86rem;}
+.receipt.a4 .a4-totals .grand{font-weight:800;font-size:1.15rem;border-top:2px solid #182322;margin-top:6px;padding-top:8px;}
+.receipt.a4 .a4-foot{margin-top:26px;font-size:.78rem;color:#5E6E6A;text-align:center;border-top:1px dashed #E4E0D2;padding-top:14px;}
+
+.receiptActions{display:flex;gap:10px;margin-top:16px;}
+@media print{
+  body *{visibility:hidden;}
+  #printArea, #printArea *{visibility:visible;}
+  #printArea{position:absolute;top:0;left:0;width:100%;}
+  .modalOverlay,.iconBtn,.receiptActions,.modalHead{display:none !important;}
+}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#D8D3C2;border-radius:8px;}
+
+/* Enhanced admin controls */
+.discountBox{padding:12px 18px;border-top:1px solid var(--line-soft);background:var(--panel-alt);}
+.discountInput{display:flex;align-items:center;gap:8px;} .discountInput label{font-size:.78rem;color:var(--ink-soft);font-weight:600;white-space:nowrap;}
+.discountInput input{width:140px;padding:10px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;}
+.editingBanner{margin:12px 18px 0;padding:9px 11px;border-radius:8px;background:var(--brass-100);color:#5B4314;font-size:.78rem;font-weight:700;}
+.chartGrid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px;} @media(min-width:850px){.chartGrid{grid-template-columns:1fr 1fr;}}
+.chartCard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-card);overflow:hidden;}
+.chartTitle{font-weight:700;color:var(--teal-900);font-size:.9rem;margin-bottom:12px;}
+.barChart{height:190px;display:flex;align-items:flex-end;gap:6px;padding:8px 4px 0;border-bottom:1px solid var(--line);overflow-x:auto;}
+.barItem{min-width:32px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;}
+.bar{width:100%;max-width:34px;border-radius:6px 6px 0 0;background:var(--teal-700);min-height:2px;}
+.barLabel{font-size:.62rem;color:var(--ink-faint);white-space:nowrap;} .barValue{font-size:.58rem;color:var(--ink-soft);white-space:nowrap;}
+.hbarList{display:flex;flex-direction:column;gap:9px;} .hbarRow{display:grid;grid-template-columns:110px 1fr 70px;gap:8px;align-items:center;font-size:.72rem;}
+.hbarTrack{height:9px;background:var(--line-soft);border-radius:20px;overflow:hidden;} .hbarFill{height:100%;background:var(--brass-500);border-radius:20px;} .hbarVal{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;}
+.insightGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;} @media(min-width:700px){.insightGrid{grid-template-columns:repeat(4,1fr);}}
+.insightCard{background:var(--panel-alt);border:1px solid var(--line-soft);border-radius:12px;padding:13px;} .insightCard .lbl{font-size:.68rem;color:var(--ink-faint);text-transform:uppercase;font-weight:700;} .insightCard .val{font-family:var(--font-display);font-size:1.15rem;font-weight:700;color:var(--teal-900);margin-top:4px;}
+.dashboardFilters{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;} @media(min-width:760px){.dashboardFilters{grid-template-columns:repeat(5,1fr);}}
+.dashboardFilters input,.dashboardFilters select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.82rem;}
+.bulkRows{display:flex;flex-direction:column;gap:8px;margin-top:8px;} .bulkRow{display:grid;grid-template-columns:1fr 90px 90px 90px 36px;gap:7px;align-items:center;}
+.bulkRow input{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:.82rem;} .bulkRow .removeBulk{width:32px;height:32px;border:0;border-radius:8px;background:var(--danger-bg);color:var(--danger);font-weight:700;}
+.bulkHead{display:grid;grid-template-columns:1fr 90px 90px 90px 36px;gap:7px;color:var(--ink-faint);font-size:.65rem;font-weight:700;text-transform:uppercase;margin-top:10px;}
+@media(max-width:600px){.bulkRow,.bulkHead{grid-template-columns:1fr 75px 75px 75px 32px;}.bulkRow input{font-size:.75rem;padding:8px;}}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <div class="loginHero">
+    <div class="heroMark"><div class="glyph">₹</div><div class="wordmark" id="heroShopName">Khata Billing</div></div>
+    <div class="heroBody">
+      <h1>Every sale,<br>accounted for.</h1>
+      <p>A single ledger for billing, stock, vendors and GST — kept right on this device, ready whenever the shop opens.</p>
+    </div>
+    <div class="heroFoot">Offline-first POS · No internet required to bill</div>
+  </div>
+  <div class="loginPane">
+    <div class="loginCard">
+      <div class="mobileMark"><div class="glyph">₹</div><div class="name" id="loginShopName">Khata Billing</div></div>
+      <h2 class="loginTitle">Welcome back</h2>
+      <div class="loginSub">Sign in to open the counter</div>
+      <div class="roleTabs">
+        <button type="button" id="tabAdmin" class="active">Admin</button>
+        <button type="button" id="tabBiller">Biller</button>
+      </div>
+      <div class="field"><label>Password</label><input type="password" id="loginPassword" placeholder="Enter password" autocomplete="current-password"></div>
+      <button class="btn block" id="loginBtn">Sign in</button>
+      <div class="loginErr" id="loginErr"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="topbar">
+    <button class="iconBtn" id="hamburgerBtn" aria-label="Menu"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+    <div class="titleWrap"><div class="shopName" id="topShopName">Khata Billing</div><div class="pageTitle" id="topPageTitle">Dashboard</div></div>
+    <span class="roleChip" id="roleChip">ADMIN</span>
+    <button class="iconBtn" id="logoutBtn" aria-label="Logout"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+
+  <div class="shell">
+    <div class="overlay" id="overlay"></div>
+    <nav class="sidebar" id="sidebar">
+      <div class="navSection adminOnly">Overview</div>
+      <a href="#" data-page="dashboard" class="navlink adminOnly"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 19V10M12 19V5M20 19v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Dashboard</a>
+      <div class="navSection">Counter</div>
+      <a href="#" data-page="billing" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 9h18M3 5h18v14H3V5z" stroke="currentColor" stroke-width="1.8"/></svg> New Bill</a>
+      <a href="#" data-page="history" class="navlink"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 8v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg> Sales History</a>
+      <div class="navSection adminOnly">Manage</div>
+      <a href="#" data-page="inventory" class="navlink adminOnly"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg> Menu</a>
+      <a href="#" data-page="vendors" class="navlink adminOnly"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 21V8l9-5 9 5v13" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 21v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg> Vendor Management</a>
+      <a href="#" data-page="settings" class="navlink adminOnly"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="1.6"/></svg> Shop Settings</a>
+      <div class="navFooter">Khata Billing<br>Offline POS · works without internet</div>
+    </nav>
+
+    <div class="pages">
+
+      <!-- ---- DASHBOARD (admin) ---- -->
+      <section class="page hidden" id="page-dashboard">
+        <div class="pageHeading"><div><h2>Admin Dashboard</h2><div class="sub">Collections, trends and business insights</div></div></div>
+        <div class="periodPills" id="periodPills"><button class="periodPill active" data-period="today">Today</button><button class="periodPill" data-period="yesterday">Yesterday</button><button class="periodPill" data-period="7d">Last 7 Days</button><button class="periodPill" data-period="30d">Last 30 Days</button><button class="periodPill" data-period="all">All Time</button></div>
+        <div class="filterBar dashboardFilters"><input type="date" id="dashFrom" title="From date"><input type="date" id="dashTo" title="To date"><select id="dashPayment"><option value="all">All Payments</option><option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option></select><select id="dashBiller"><option value="all">All Billers</option></select><select id="dashCategory"><option value="all">All Categories</option></select></div>
+        <div class="statGrid" id="statGrid"></div><div class="insightGrid" id="insightGrid"></div>
+        <div class="chartGrid"><div class="chartCard"><div class="chartTitle">Daily Collection</div><div class="barChart" id="dailySalesChart"></div></div><div class="chartCard"><div class="chartTitle">Payment Split</div><div class="hbarList" id="paymentChart"></div></div><div class="chartCard"><div class="chartTitle">Top Selling Products</div><div class="hbarList" id="topProductsChart"></div></div><div class="chartCard"><div class="chartTitle">Bills by Day</div><div class="barChart" id="dailyBillsChart"></div></div></div>
+      </section>
+
+      <!-- ---- BILLING PAGE (biller) ---- -->
+      <section class="page hidden" id="page-billing">
+        <div class="billGrid">
+          <div class="panel">
+            <div class="searchRow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <input type="text" id="prodSearch" placeholder="Search item by name…">
+            </div>
+            <div class="catChips" id="catChips"></div>
+            <div class="prodGrid" id="prodGrid"></div>
+          </div>
+
+          <div class="panel">
+            <div class="cartTabs" id="cartTabs"></div>
+            <div class="panelHead"><h3>Current Bill</h3><span id="cartCount" style="font-size:.78rem;color:var(--ink-soft);">0 items</span></div><div class="editingBanner hidden" id="editingBanner">Editing an existing bill — only Admin can save changes.</div>
+            <div class="custFields">
+              <input type="text" id="custName" placeholder="Customer name (optional)">
+              <input type="tel" id="custMobile" placeholder="Mobile (optional)">
+            </div>
+            <div class="cartList" id="cartList"></div>
+            <div class="panelBody" style="border-top:1px solid var(--line-soft);">
+              <div class="sumRow"><span>Subtotal</span><span class="tabular" id="sumSub">₹0.00</span></div>
+              <div class="discountBox adminOnly" id="discountBox"><div class="switchRow"><span class="lbl">Apply discount</span><label class="switch"><input type="checkbox" id="discountToggle"><span class="switchTrack"></span><span class="switchThumb"></span></label></div><div class="discountInput hidden" id="discountFields"><label>Discount amount (₹)</label><input type="number" id="discountAmount" min="0" step="0.01" value="0"></div></div>
+              <div class="sumRow hidden" id="discountSummaryRow"><span>Discount</span><span class="tabular" id="sumDiscount">₹0.00</span></div>
+              <div class="sumRow"><span>GST <span style="font-size:.68rem;color:var(--ink-faint);">(after discount)</span></span><span class="tabular" id="sumGst">₹0.00</span></div>
+              <div class="sumRow grand"><span>Total</span><span class="tabular" id="sumGrand">₹0.00</span></div>
+              <div class="switchRow">
+                <span class="lbl">Split payment (cash / UPI / card)</span>
+                <label class="switch"><input type="checkbox" id="splitToggle"><span class="switchTrack"></span><span class="switchThumb"></span></label>
+              </div>
+              <div class="splitFields hidden" id="splitFields">
+                <div class="field"><label>Cash</label><input type="number" step="0.01" min="0" id="payCash" value="0"></div>
+                <div class="field"><label>UPI</label><input type="number" step="0.01" min="0" id="payUpi" value="0"></div>
+                <div class="field"><label>Card</label><input type="number" step="0.01" min="0" id="payCard" value="0"></div>
+              </div>
+              <div class="remainingNote hidden" id="remainingNote"></div>
+            </div>
+            <div class="checkoutBar">
+              <button class="btn gold block" id="checkoutBtn" disabled>Checkout &amp; Print Bill</button>
+              <button class="btn subtle block" id="clearCartBtn" style="margin-top:9px;">Clear This Bill</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---- HISTORY PAGE ---- -->
+      <section class="page hidden" id="page-history">
+        <div class="panel">
+          <div class="panelHead"><h3>Sales History</h3><button class="btn subtle sm" id="exportCsvBtn">Export CSV</button></div>
+          <div class="filterBar">
+            <input type="text" id="histSearch" placeholder="Search bill no / customer…">
+            <input type="date" id="histFrom">
+            <input type="date" id="histTo">
+            <button class="btn ghost sm" id="histClearBtn">Clear</button>
+          </div>
+          <div class="tableWrap">
+            <table>
+              <thead><tr><th>Bill No</th><th>Date</th><th>Customer</th><th>Payment</th><th>Biller</th><th>Total</th><th>Actions</th></tr></thead>
+              <tbody id="histBody"></tbody>
+            </table>
+          </div>
+          <div class="emptyState hidden" id="histEmpty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M12 8v5l3 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/></svg>
+            <div class="t">No bills yet</div><div class="d">Bills you create will show up here.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---- MENU / INVENTORY PAGE (admin) ---- -->
+      <section class="page hidden" id="page-inventory">
+        <div class="settingsGrid">
+          <div>
+            <div class="panel settingsCard"><div class="panelHead"><h3>Categories</h3></div><div class="panelBody"><div class="miniList" id="catList"></div><div class="inlineForm"><input type="text" id="newCatName" placeholder="Category name"><input type="number" id="newCatGst" placeholder="GST %" min="0" max="28" style="max-width:90px;"><button class="btn sm" id="addCatBtn">+ Add</button></div></div></div>
+            <div class="panel settingsCard" style="margin-top:16px;"><div class="panelHead"><h3>Add Multiple Products</h3></div><div class="panelBody"><div class="field"><label>Category</label><select id="bulkCategory"></select></div><div class="bulkHead"><span>Product</span><span>Price</span><span>Stock</span><span>Unit</span><span></span></div><div class="bulkRows" id="bulkRows"></div><div class="modalActions"><button class="btn subtle" id="addBulkRowBtn">+ Add Product</button><button class="btn gold" id="saveBulkBtn">Save All</button></div></div></div>
+          </div>
+          <div class="panel"><div class="panelHead"><h3>Menu</h3><button class="btn gold sm" id="addProdBtn">+ Add Item</button></div><div class="filterBar"><input type="text" id="invSearch" placeholder="Search menu…"></div><div class="tableWrap"><table><thead><tr><th>Item</th><th>Category</th><th>GST</th><th>Price</th><th>Stock</th><th>Unit</th><th>Actions</th></tr></thead><tbody id="invBody"></tbody></table></div><div class="emptyState hidden" id="invEmpty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M3 7l9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 7v10l9 4 9-4V7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><div class="t">No items yet</div><div class="d">Add your first product to start billing.</div></div></div>
+        </div>
+      </section>
+
+      <!-- ---- VENDOR MANAGEMENT PAGE (admin) ---- -->
+      <section class="page hidden" id="page-vendors">
+        <div class="settingsGrid"><div>
+          <div class="panel settingsCard"><div class="panelHead"><h3>Vendors</h3></div><div class="panelBody"><div class="miniList" id="vendorList"></div><div class="inlineForm"><input type="text" id="newVendorName" placeholder="Vendor name"><input type="tel" id="newVendorPhone" placeholder="Phone"><button class="btn sm" id="addVendorBtn">+ Add</button></div></div></div>
+        </div><div>
+          <div class="panel settingsCard"><div class="panelHead"><h3>Record a Purchase</h3></div><div class="panelBody"><div class="field"><label>Vendor</label><select id="purVendor"></select></div><div class="field"><label>Product</label><select id="purProduct"></select></div><div class="formGrid"><div class="field"><label>Quantity</label><input type="number" min="1" id="purQty" value="1"></div><div class="field"><label>Cost Price (₹, optional)</label><input type="number" min="0" step="0.01" id="purCost"></div></div><button class="btn gold block" id="addPurchaseBtn" style="margin-top:14px;">+ Log Purchase &amp; Add Stock</button></div></div>
+          <div class="panel settingsCard" style="margin-top:16px;"><div class="panelHead"><h3>Purchase History</h3></div><div class="tableWrap"><table><thead><tr><th>Date</th><th>Vendor</th><th>Product</th><th>Qty</th><th>Cost</th></tr></thead><tbody id="purchaseBody"></tbody></table></div><div class="emptyState hidden" id="purchaseEmpty"><div class="t">No purchases logged yet</div></div></div>
+        </div></div>
+      </section>
+
+      <!-- ---- SETTINGS PAGE (admin) ---- -->
+      <section class="page hidden" id="page-settings">
+        <div class="settingsGrid">
+          <div>
+            <div class="panel settingsCard">
+              <div class="panelHead"><h3>Shop Details</h3></div>
+              <div class="panelBody">
+                <div class="field"><label>Shop Name</label><input type="text" id="setShopName"></div>
+                <div class="field"><label>Address</label><input type="text" id="setAddress"></div>
+                <div class="field"><label>GSTIN</label><input type="text" id="setGstin" placeholder="e.g. 33ABCDE1234F1Z5"></div>
+                <div class="field"><label>Mobile Number</label><input type="tel" id="setMobile"></div>
+                <div class="field"><label>Email</label><input type="email" id="setEmail"></div>
+                <button class="btn block" id="saveShopBtn">Save Shop Details</button>
+              </div>
+            </div>
+            <div class="panel settingsCard" style="margin-top:16px;">
+              <div class="panelHead"><h3>Billing Preferences</h3></div>
+              <div class="panelBody">
+                <div class="field"><label>Bill Paper Size</label>
+                  <select id="setBillPaper">
+                    <option value="thermal80">Thermal Roll — 80mm</option>
+                    <option value="thermal58">Thermal Roll — 58mm</option>
+                    <option value="a4">A4 Sheet</option>
+                  </select>
+                </div>
+                <button class="btn block" id="savePaperBtn">Save Preference</button>
+              </div>
+            </div>
+            <div class="panel settingsCard" style="margin-top:16px;">
+              <div class="panelHead"><h3>Change Passwords</h3></div>
+              <div class="panelBody">
+                <div class="field"><label>Admin Password</label><input type="password" id="setAdminPass" placeholder="Leave blank to keep unchanged"></div>
+                <div class="field"><label>Biller Password</label><input type="password" id="setBillerPass" placeholder="Leave blank to keep unchanged"></div>
+                <button class="btn block" id="savePassBtn">Update Passwords</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="panel settingsCard">
+              <div class="panelHead"><h3>Backup &amp; Restore</h3></div>
+              <div class="panelBody">
+                <p style="font-size:.83rem;color:var(--ink-soft);line-height:1.55;margin:0 0 14px;">Save a full copy of your menu, vendors, bills and settings as a file — or bring one back from an earlier backup.</p>
+                <div class="backupRow">
+                  <button class="btn subtle" id="backupBtn">⬇ Download Backup</button>
+                  <button class="btn subtle" id="restoreBtn">⬆ Restore from File</button>
+                </div>
+                <input type="file" id="restoreFileInput" accept="application/json" class="hidden">
+                <div class="fileHint">Restoring replaces all current data on this device with the contents of the backup file.</div>
+              </div>
+            </div>
+            <div class="dangerZone" style="margin-top:16px;">
+              <h3>Danger Zone</h3>
+              <p>Erase all products, vendors, purchases and bills from this device. This cannot be undone — take a backup first.</p>
+              <button class="btn danger" id="resetDataBtn">Erase All Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<button class="fab hidden" id="fabCart" aria-label="View cart">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l2.4 12.4a2 2 0 002 1.6h8.2a2 2 0 002-1.6L21 8H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></svg>
+  <span class="badge hidden" id="fabBadge">0</span>
+</button>
+<div id="toast"></div>
+<div id="printArea" style="display:none;"></div>
+<style id="dynPageStyle"></style>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== INDEXEDDB LAYER ===================== */
+const DB_NAME='khataBillingDB', DB_VERSION=2;
+let db=null;
+
+function openDB(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(DB_NAME,DB_VERSION);
+    req.onupgradeneeded=(e)=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('products')){
+        const s=d.createObjectStore('products',{keyPath:'id',autoIncrement:true});
+        s.createIndex('name','name',{unique:false});
+      }
+      if(!d.objectStoreNames.contains('bills')){
+        const s=d.createObjectStore('bills',{keyPath:'id',autoIncrement:true});
+        s.createIndex('billNo','billNo',{unique:true});
+        s.createIndex('date','date',{unique:false});
+      }
+      if(!d.objectStoreNames.contains('settings')){ d.createObjectStore('settings',{keyPath:'key'}); }
+      if(!d.objectStoreNames.contains('categories')){ d.createObjectStore('categories',{keyPath:'id',autoIncrement:true}); }
+      if(!d.objectStoreNames.contains('vendors')){ d.createObjectStore('vendors',{keyPath:'id',autoIncrement:true}); }
+      if(!d.objectStoreNames.contains('purchases')){ d.createObjectStore('purchases',{keyPath:'id',autoIncrement:true}); }
+    };
+    req.onsuccess=(e)=>resolve(e.target.result);
+    req.onerror=(e)=>reject(e.target.error);
+  });
+}
+function tx(storeName,mode='readonly'){ return db.transaction(storeName,mode).objectStore(storeName); }
+function idbGetAll(storeName){ return new Promise((res,rej)=>{ const r=tx(storeName).getAll(); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+function idbGet(storeName,key){ return new Promise((res,rej)=>{ const r=tx(storeName).get(key); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+function idbPut(storeName,value){ return new Promise((res,rej)=>{ const r=tx(storeName,'readwrite').put(value); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+function idbAdd(storeName,value){ return new Promise((res,rej)=>{ const r=tx(storeName,'readwrite').add(value); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+function idbDelete(storeName,key){ return new Promise((res,rej)=>{ const r=tx(storeName,'readwrite').delete(key); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); }); }
+function idbClear(storeName){ return new Promise((res,rej)=>{ const r=tx(storeName,'readwrite').clear(); r.onsuccess=()=>res(); r.onerror=()=>rej(r.error); }); }
+
+/* ===================== APP STATE ===================== */
+let state={
+  shop:{name:'Khata Billing',address:'',gstin:'',mobile:'',email:''},
+  auth:{adminPass:'admin123',billerPass:'biller123'},
+  billCounter:0,
+  billPaper:'thermal80',
+  role:null,
+  products:[],
+  bills:[],
+  categories:[],
+  vendors:[],
+  purchases:[],
+  carts:[],
+  activeCartId:null,
+  activeCategoryFilter:'all',
+  currentPage:'billing',
+  editingProductId:null,
+  editingBillId:null,
+  dashboardPeriod:'today', dashboardFrom:'', dashboardTo:'', dashboardPayment:'all', dashboardBiller:'all', dashboardCategory:'all'
+};
+
+const CAT_COLORS={};
+const PALETTE=['#C08A2E','#1F6D6F','#B23B2E','#5E6E6A','#7A5C2E','#2E7D53'];
+function colorForCategoryId(catId){
+  const key=String(catId||'none');
+  if(!CAT_COLORS[key]){ CAT_COLORS[key]=PALETTE[Object.keys(CAT_COLORS).length % PALETTE.length]; }
+  return CAT_COLORS[key];
+}
+function categoryById(id){ return state.categories.find(c=>c.id===id); }
+function categoryNameFor(product){ const c=product&&categoryById(product.categoryId); return c?c.name:'Uncategorized'; }
+function gstPercentFor(product){ const c=product&&categoryById(product.categoryId); return c?(c.gstPercent||0):0; }
+
+const money=(n)=> '₹'+(Math.round((n+Number.EPSILON)*100)/100).toFixed(2);
+const uid=()=> 'c'+Date.now()+Math.random().toString(36).slice(2,7);
+
+function toast(msg,isError){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.toggle('error',!!isError);
+  t.classList.add('show');
+  clearTimeout(t._h);
+  t._h=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ===================== INIT / SEED / MIGRATION ===================== */
+async function init(){
+  db=await openDB();
+  let shopRow=await idbGet('settings','shop');
+  let authRow=await idbGet('settings','auth');
+  let counterRow=await idbGet('settings','counter');
+  let paperRow=await idbGet('settings','billPaper');
+  let draftRow=await idbGet('settings','draftCarts');
+  if(!shopRow){ shopRow={key:'shop',value:state.shop}; await idbPut('settings',shopRow); }
+  if(!authRow){ authRow={key:'auth',value:state.auth}; await idbPut('settings',authRow); }
+  if(!counterRow){ counterRow={key:'counter',value:0}; await idbPut('settings',counterRow); }
+  if(!paperRow){ paperRow={key:'billPaper',value:'thermal80'}; await idbPut('settings',paperRow); }
+  state.shop=shopRow.value;
+  state.auth=authRow.value||{adminPass:'admin123',billerPass:'biller123'}; if(!state.auth.adminPass)state.auth.adminPass='admin123'; if(!state.auth.billerPass)state.auth.billerPass='biller123';
+  state.billCounter=counterRow.value;
+  state.billPaper=paperRow.value;
+
+  await refreshCategories();
+  await refreshProducts();
+  await refreshBills();
+  await refreshVendors();
+  await refreshPurchases();
+
+  // ---- first-run seed ----
+  if(state.categories.length===0 && state.products.length===0){
+    const catIds={};
+    for(const c of [{name:'Snacks',gstPercent:5},{name:'Dairy',gstPercent:0},{name:'Grocery',gstPercent:5}]){
+      catIds[c.name]=await idbAdd('categories',c);
+    }
+    const sample=[
+      {name:'Parle-G Biscuit 100g',price:10,stock:40,unit:'pcs',categoryId:catIds['Snacks']},
+      {name:'Amul Milk 500ml',price:28,stock:25,unit:'pcs',categoryId:catIds['Dairy']},
+      {name:'Tata Salt 1kg',price:24,stock:30,unit:'pcs',categoryId:catIds['Grocery']}
+    ];
+    for(const p of sample){ await idbAdd('products',p); }
+    await refreshCategories(); await refreshProducts();
+  }
+
+  // ---- migrate legacy (v1) products that still carry a free-text category + per-item GST ----
+  const legacy = state.products.filter(p=>p.categoryId==null && (p.category || typeof p.gstPercent==='number'));
+  if(legacy.length>0){
+    const nameToId={};
+    for(const c of state.categories){ nameToId[c.name]=c.id; }
+    for(const p of legacy){
+      const catName=(p.category||'General').trim() || 'General';
+      if(!nameToId[catName]){
+        const newId=await idbAdd('categories',{name:catName,gstPercent:p.gstPercent||0});
+        nameToId[catName]=newId;
+      }
+      const {category,gstPercent,...rest}=p;
+      rest.categoryId=nameToId[catName];
+      await idbPut('products',rest);
+    }
+    await refreshCategories(); await refreshProducts();
+  }
+
+  // ---- restore draft carts, else start with one empty cart ----
+  if(draftRow && Array.isArray(draftRow.value) && draftRow.value.length>0){
+    state.carts=draftRow.value;
+  } else {
+    state.carts=[newCartObj()];
+  }
+  state.activeCartId=state.carts[0].id;
+
+  applyShopBranding();
+  registerServiceWorker();
+}
+
+function newCartObj(){ return {id:uid(),label:'Bill',items:[],customerName:'',customerMobile:'',split:false,payCash:0,payUpi:0,payCard:0,discountEnabled:false,discountAmount:0,editingBillId:null}; }
+
+async function refreshProducts(){ state.products=await idbGetAll('products'); state.products.sort((a,b)=>a.name.localeCompare(b.name)); }
+async function refreshBills(){ state.bills=await idbGetAll('bills'); state.bills.sort((a,b)=> b.id-a.id); }
+async function refreshCategories(){ state.categories=await idbGetAll('categories'); state.categories.sort((a,b)=>a.name.localeCompare(b.name)); }
+async function refreshVendors(){ state.vendors=await idbGetAll('vendors'); state.vendors.sort((a,b)=>a.name.localeCompare(b.name)); }
+async function refreshPurchases(){ state.purchases=await idbGetAll('purchases'); state.purchases.sort((a,b)=>b.id-a.id); }
+
+async function persistDraftCarts(){
+  await idbPut('settings',{key:'draftCarts',value:state.carts});
+}
+
+function applyShopBranding(){
+  document.getElementById('loginShopName').textContent=state.shop.name||'Khata Billing';
+  document.getElementById('heroShopName').textContent=state.shop.name||'Khata Billing';
+  document.getElementById('topShopName').textContent=state.shop.name||'Khata Billing';
+  document.title=state.shop.name||'Khata Billing';
+}
+
+/* ===================== LOGIN ===================== */
+let selectedRole='admin';
+document.getElementById('tabAdmin').addEventListener('click',()=>{selectedRole='admin';document.getElementById('tabAdmin').classList.add('active');document.getElementById('tabBiller').classList.remove('active');});
+document.getElementById('tabBiller').addEventListener('click',()=>{selectedRole='biller';document.getElementById('tabBiller').classList.add('active');document.getElementById('tabAdmin').classList.remove('active');});
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPassword').addEventListener('keydown',(e)=>{ if(e.key==='Enter') doLogin(); });
+
+function doLogin(){
+  const pass=document.getElementById('loginPassword').value;
+  const correct = selectedRole==='admin' ? state.auth.adminPass : state.auth.billerPass;
+  if(pass.length>0 && pass===correct){
+    state.role=selectedRole;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').classList.add('show');
+    document.getElementById('roleChip').textContent=selectedRole.toUpperCase();
+    document.querySelectorAll('.adminOnly').forEach(el=> el.style.display = selectedRole==='admin' ? '' : 'none');
+    document.querySelectorAll('.billerOnly').forEach(el=> el.style.display = selectedRole==='biller' ? '' : 'none');
+    document.getElementById('loginErr').textContent='';
+    document.getElementById('loginPassword').value='';
+    goToPage(selectedRole==='admin' ? 'dashboard' : 'billing');
+  } else {
+    document.getElementById('loginErr').textContent='Incorrect password. Please try again.';
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  if(!confirm('Sign out?')) return;
+  state.role=null;
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('loginScreen').style.display='flex';
+  closeSidebar();
+});
+
+/* ===================== NAV / SIDEBAR ===================== */
+const sidebar=document.getElementById('sidebar'), overlay=document.getElementById('overlay');
+document.getElementById('hamburgerBtn').addEventListener('click',()=>{ sidebar.classList.toggle('open'); overlay.classList.toggle('show'); });
+overlay.addEventListener('click', closeSidebar);
+function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); }
+
+const pageTitles={dashboard:'Dashboard',billing:'New Bill',history:'Sales History',inventory:'Menu',vendors:'Vendor Management',settings:'Shop Settings'};
+document.querySelectorAll('.navlink').forEach(a=>{
+  a.addEventListener('click',(e)=>{
+    e.preventDefault();
+    if(a.classList.contains('adminOnly') && state.role!=='admin') return;
+    if(a.classList.contains('billerOnly') && state.role!=='biller') return;
+    goToPage(a.dataset.page);
+    closeSidebar();
+  });
+});
+
+function goToPage(page){
+  const adminPages=['dashboard','billing','inventory','vendors','settings'];
+  const billerPages=['billing','history'];
+  if(adminPages.includes(page) && state.role!=='admin') page = state.role==='biller' ? 'billing' : page;
+  if(billerPages.includes(page) && !['admin','biller'].includes(state.role)) page='billing';
+  state.currentPage=page;
+  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('page-'+page).classList.remove('hidden');
+  document.querySelectorAll('.navlink').forEach(a=>a.classList.toggle('active', a.dataset.page===page));
+  document.getElementById('topPageTitle').textContent=pageTitles[page]||'';
+  if(page==='dashboard') renderDashboard();
+  if(page==='history') renderHistory();
+  if(page==='inventory') renderInventory();
+  if(page==='vendors') renderVendorsPage();
+  if(page==='settings') renderSettings();
+  if(page==='billing'){ renderCategoryChips(); renderProducts(); renderCartTabs(); renderCart(); }
+  document.querySelector('.pages').scrollTop=0;
+}
+
+document.getElementById('fabCart').addEventListener('click',()=>{
+  document.querySelector('.pages').scrollTo({top:document.getElementById('cartList').offsetTop-70,behavior:'smooth'});
+});
+
+/* ===================== MULTI-CART ===================== */
+function getActiveCart(){ return state.carts.find(c=>c.id===state.activeCartId) || state.carts[0]; }
+
+function renderCartTabs(){
+  const wrap=document.getElementById('cartTabs');
+  wrap.innerHTML=state.carts.map((c,idx)=>{
+    const count=c.items.reduce((a,i)=>a+i.qty,0);
+    return `<div class="cartTab ${c.id===state.activeCartId?'active':''}" data-id="${c.id}">
+      <span class="tabLabel">${escapeHtml(c.label||('Bill '+(idx+1)))}</span>
+      <span class="cnt">${count}</span>
+      ${state.carts.length>1?'<button class="xClose" data-close="'+c.id+'">✕</button>':''}
+    </div>`;
+  }).join('') + `<button class="newCartBtn" id="newCartBtn" title="New bill">+</button>`;
+
+  wrap.querySelectorAll('.cartTab').forEach(tabEl=>{
+    tabEl.addEventListener('click',(e)=>{
+      if(e.target.closest('.xClose')) return;
+      state.activeCartId=tabEl.dataset.id;
+      renderCartTabs(); renderCart();
+    });
+  });
+  wrap.querySelectorAll('.xClose').forEach(btn=>{
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const id=btn.dataset.close;
+      const cart=state.carts.find(c=>c.id===id);
+      if(cart && cart.items.length>0 && !confirm('This bill has items in it. Close anyway?')) return;
+      state.carts=state.carts.filter(c=>c.id!==id);
+      if(state.carts.length===0) state.carts=[newCartObj()];
+      if(state.activeCartId===id) state.activeCartId=state.carts[0].id;
+      persistDraftCarts();
+      renderCartTabs(); renderCart();
+    });
+  });
+  document.getElementById('newCartBtn').addEventListener('click',()=>{
+    const nc=newCartObj();
+    nc.label='Bill '+(state.carts.length+1);
+    state.carts.push(nc);
+    state.activeCartId=nc.id;
+    persistDraftCarts();
+    renderCartTabs(); renderCart();
+  });
+}
+
+/* ===================== CATEGORY FILTER CHIPS ===================== */
+function renderCategoryChips(){
+  const wrap=document.getElementById('catChips');
+  const chips=[{id:'all',name:'All'}].concat(state.categories.map(c=>({id:String(c.id),name:c.name})));
+  wrap.innerHTML=chips.map(c=>`<button class="catChip ${state.activeCategoryFilter===c.id?'active':''}" data-cat="${c.id}">${escapeHtml(c.name)}</button>`).join('');
+  wrap.querySelectorAll('.catChip').forEach(chip=>{
+    chip.addEventListener('click',()=>{
+      state.activeCategoryFilter=chip.dataset.cat;
+      renderCategoryChips();
+      renderProducts();
+    });
+  });
+}
+
+/* ===================== BILLING: PRODUCT GRID ===================== */
+function renderProducts(){
+  const q=(document.getElementById('prodSearch').value||'').toLowerCase().trim();
+  const grid=document.getElementById('prodGrid');
+  let list=state.products.filter(p=>p.name.toLowerCase().includes(q));
+  if(state.activeCategoryFilter!=='all'){
+    list=list.filter(p=> String(p.categoryId)===state.activeCategoryFilter);
+  }
+  if(list.length===0){
+    grid.innerHTML=`<div class="emptyState" style="grid-column:1/-1;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div class="t">No matching items</div><div class="d">Try a different search or category, or add it from Menu.</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML=list.map(p=>{
+    const low = p.stock<=5;
+    const out = p.stock<=0;
+    return `<button class="prodCard" style="--catcolor:${colorForCategoryId(p.categoryId)}" data-id="${p.id}" ${out?'disabled':''}>
+      <span class="pn">${escapeHtml(p.name)}</span>
+      <span class="pp">${money(p.price)}</span>
+      <span class="ps ${low?'low':''}">${out?'Out of stock':p.stock+' '+escapeHtml(p.unit)+' left'}</span>
+    </button>`;
+  }).join('');
+  grid.querySelectorAll('.prodCard').forEach(btn=>{
+    btn.addEventListener('click',()=> addToCart(parseInt(btn.dataset.id,10)));
+  });
+}
+document.getElementById('prodSearch').addEventListener('input', renderProducts);
+
+function addToCart(productId){
+  const p=state.products.find(x=>x.id===productId);
+  if(!p||p.stock<=0) return;
+  const cart=getActiveCart();
+  let line=cart.items.find(c=>c.productId===productId);
+  if(line){
+    if(line.qty>=p.stock){ toast('No more stock available',true); return; }
+    line.qty++;
+  } else {
+    cart.items.push({productId:p.id,name:p.name,price:p.price,gstPercent:gstPercentFor(p),unit:p.unit,qty:1});
+  }
+  persistDraftCarts();
+  renderCartTabs();
+  renderCart();
+}
+function changeQty(productId,delta){
+  const cart=getActiveCart();
+  const line=cart.items.find(c=>c.productId===productId);
+  if(!line) return;
+  const p=state.products.find(x=>x.id===productId);
+  line.qty+=delta;
+  if(line.qty<=0){ cart.items=cart.items.filter(c=>c.productId!==productId); }
+  else if(p && line.qty>p.stock){ line.qty=p.stock; toast('Only '+p.stock+' in stock',true); }
+  persistDraftCarts();
+  renderCartTabs();
+  renderCart();
+}
+function removeFromCart(productId){
+  const cart=getActiveCart();
+  cart.items=cart.items.filter(c=>c.productId!==productId);
+  persistDraftCarts();
+  renderCartTabs();
+  renderCart();
+}
+
+document.getElementById('custName').addEventListener('input',(e)=>{ getActiveCart().customerName=e.target.value; persistDraftCarts(); });
+document.getElementById('custMobile').addEventListener('input',(e)=>{ getActiveCart().customerMobile=e.target.value; persistDraftCarts(); });
+
+function calculateCartTotals(cart){
+  let subtotal=0; cart.items.forEach(c=>subtotal+=c.price*c.qty);
+  const discount=state.role==='admin'&&cart.discountEnabled?Math.min(Math.max(parseFloat(cart.discountAmount)||0,0),subtotal):0;
+  let gstTotal=0; cart.items.forEach(c=>{const ls=c.price*c.qty;const share=subtotal?discount*(ls/subtotal):0;const taxable=Math.max(0,ls-share);gstTotal+=taxable*(c.gstPercent/100);});
+  gstTotal=Math.round(gstTotal*100)/100; const grandTotal=Math.round((subtotal-discount+gstTotal)*100)/100; return {subtotal,discount,gstTotal,grandTotal};
+}
+function renderCart(){
+  const cart=getActiveCart(); if(!cart)return; document.getElementById('custName').value=cart.customerName||'';document.getElementById('custMobile').value=cart.customerMobile||'';
+  const list=document.getElementById('cartList'); if(cart.items.length===0){list.innerHTML='<div class="emptyState"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l2.4 12.4a2 2 0 002 1.6h8.2a2 2 0 002-1.6L21 8H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><div class="t">This bill is empty</div><div class="d">Tap an item on the left to add it.</div></div>';}else{list.innerHTML=cart.items.map(c=>`<div class="cartRow" data-id="${c.productId}"><div class="ci"><div class="n">${escapeHtml(c.name)}</div><div class="p">${money(c.price)} · GST ${c.gstPercent}%</div></div><div class="qtyBox"><button class="qm">−</button><span>${c.qty}</span><button class="qp">+</button></div><div class="lineTotal tabular">${money(c.price*c.qty)}</div><button class="rmBtn">✕</button></div>`).join('');list.querySelectorAll('.cartRow').forEach(row=>{const id=parseInt(row.dataset.id,10);row.querySelector('.qm').addEventListener('click',()=>changeQty(id,-1));row.querySelector('.qp').addEventListener('click',()=>changeQty(id,1));row.querySelector('.rmBtn').addEventListener('click',()=>removeFromCart(id));});}
+  const totals=calculateCartTotals(cart);document.getElementById('sumSub').textContent=money(totals.subtotal);document.getElementById('sumDiscount').textContent=money(totals.discount);document.getElementById('sumGst').textContent=money(totals.gstTotal);document.getElementById('sumGrand').textContent=money(totals.grandTotal);
+  document.getElementById('discountToggle').checked=!!cart.discountEnabled&&state.role==='admin';document.getElementById('discountFields').classList.toggle('hidden',!(cart.discountEnabled&&state.role==='admin'));document.getElementById('discountAmount').value=cart.discountAmount||0;document.getElementById('discountBox').classList.toggle('hidden',state.role!=='admin');document.getElementById('discountSummaryRow').classList.toggle('hidden',!(state.role==='admin'&&cart.discountEnabled));document.getElementById('editingBanner').classList.toggle('hidden',!(state.role==='admin'&&cart.editingBillId));
+  const itemCount=cart.items.reduce((a,c)=>a+c.qty,0);document.getElementById('cartCount').textContent=itemCount+' item'+(itemCount===1?'':'s');document.getElementById('splitToggle').checked=!!cart.split;document.getElementById('splitFields').classList.toggle('hidden',!cart.split);document.getElementById('payCash').value=cart.payCash||0;document.getElementById('payUpi').value=cart.payUpi||0;document.getElementById('payCard').value=cart.payCard||0;updateRemainingNote(totals.grandTotal);document.getElementById('checkoutBtn').disabled=cart.items.length===0;document.getElementById('checkoutBtn').textContent=cart.editingBillId?'Save Edited Bill & Print':'Checkout & Print Bill';
+  const fab=document.getElementById('fabCart'),badge=document.getElementById('fabBadge');const showFab=state.currentPage==='billing'&&window.innerWidth<940&&cart.items.length>0;fab.classList.toggle('hidden',!showFab);badge.classList.toggle('hidden',itemCount===0);badge.textContent=itemCount;
+}
+function updateRemainingNote(grandTotal){
+  const cart=getActiveCart();
+  const note=document.getElementById('remainingNote');
+  if(!cart.split || cart.items.length===0){ note.classList.add('hidden'); return; }
+  const entered=(parseFloat(cart.payCash)||0)+(parseFloat(cart.payUpi)||0)+(parseFloat(cart.payCard)||0);
+  const diff=Math.round((grandTotal-entered)*100)/100;
+  note.classList.remove('hidden');
+  if(Math.abs(diff)<0.01){ note.textContent='Balanced ✓'; note.className='remainingNote ok'; }
+  else if(diff>0){ note.textContent='Remaining: '+money(diff); note.className='remainingNote bad'; }
+  else { note.textContent='Over by: '+money(-diff); note.className='remainingNote bad'; }
+}
+
+document.getElementById('splitToggle').addEventListener('change',(e)=>{
+  const cart=getActiveCart();
+  cart.split=e.target.checked;
+  if(cart.split){
+    const totals=calculateCartTotals(cart); cart.payCash=totals.grandTotal; cart.payUpi=0; cart.payCard=0;
+  }
+  persistDraftCarts();
+  renderCart();
+});
+['payCash','payUpi','payCard'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',(e)=>{
+    const cart=getActiveCart();
+    const key = id==='payCash'?'payCash':(id==='payUpi'?'payUpi':'payCard');
+    cart[key]=parseFloat(e.target.value)||0;
+    persistDraftCarts();
+    updateRemainingNote(calculateCartTotals(cart).grandTotal);
+  });
+});
+
+document.getElementById('discountToggle').addEventListener('change',(e)=>{if(state.role!=='admin')return;const cart=getActiveCart();cart.discountEnabled=e.target.checked;if(!cart.discountEnabled)cart.discountAmount=0;if(cart.split){cart.payCash=calculateCartTotals(cart).grandTotal;cart.payUpi=0;cart.payCard=0;}persistDraftCarts();renderCart();});
+document.getElementById('discountAmount').addEventListener('input',(e)=>{if(state.role!=='admin')return;const cart=getActiveCart();cart.discountAmount=Math.max(0,parseFloat(e.target.value)||0);const t=calculateCartTotals(cart);if(cart.discountAmount>t.subtotal)cart.discountAmount=t.subtotal;if(cart.split){cart.payCash=calculateCartTotals(cart).grandTotal;cart.payUpi=0;cart.payCard=0;}persistDraftCarts();renderCart();});
+
+document.getElementById('clearCartBtn').addEventListener('click',()=>{
+  const cart=getActiveCart();
+  if(cart.items.length===0) return;
+  if(confirm('Clear this bill?')){
+    cart.items=[]; cart.customerName=''; cart.customerMobile=''; cart.split=false; cart.payCash=0; cart.payUpi=0; cart.payCard=0;
+    persistDraftCarts();
+    renderCartTabs(); renderCart();
+  }
+});
+
+/* ===================== CHECKOUT ===================== */
+document.getElementById('checkoutBtn').addEventListener('click',async()=>{
+ const cart=getActiveCart();if(cart.items.length===0)return;if(cart.editingBillId&&state.role!=='admin'){toast('Only Admin can edit bills',true);return;}
+ const oldBill=cart.editingBillId?state.bills.find(b=>b.id===cart.editingBillId):null;
+ if(oldBill){for(const it of oldBill.items){const p=state.products.find(x=>x.id===it.productId);if(p){p.stock+=it.qty;await idbPut('products',p);}}await refreshProducts();}
+ for(const c of cart.items){const p=state.products.find(x=>x.id===c.productId);if(!p||p.stock<c.qty){if(oldBill){for(const it of oldBill.items){const p2=state.products.find(x=>x.id===it.productId);if(p2){p2.stock-=it.qty;await idbPut('products',p2);}}}toast('Stock changed for '+c.name+'. Please review cart.',true);await refreshProducts();renderProducts();return;}}
+ const totals=calculateCartTotals(cart);const items=cart.items.map(c=>{const ls=c.price*c.qty,share=totals.subtotal?totals.discount*(ls/totals.subtotal):0,taxable=Math.max(0,ls-share),gst=Math.round(taxable*(c.gstPercent/100)*100)/100;return{productId:c.productId,name:c.name,price:c.price,gstPercent:c.gstPercent,qty:c.qty,lineSubtotal:ls,taxableAfterDiscount:taxable,discountShare:share,gstAmount:gst,lineTotal:Math.round((taxable+gst)*100)/100};});
+ let payment;if(cart.split){const cash=parseFloat(cart.payCash)||0,upi=parseFloat(cart.payUpi)||0,card=parseFloat(cart.payCard)||0,entered=Math.round((cash+upi+card)*100)/100;if(Math.abs(entered-totals.grandTotal)>0.01){toast('Split payment amounts must add up to the total',true);if(oldBill){for(const it of oldBill.items){const p2=state.products.find(x=>x.id===it.productId);if(p2){p2.stock-=it.qty;await idbPut('products',p2);}}}return;}payment={method:'split',cash,upi,card};}else payment={method:'cash',cash:totals.grandTotal,upi:0,card:0};
+ let bill;if(oldBill){bill={...oldBill,date:new Date().toISOString(),customerName:(cart.customerName||'').trim(),customerMobile:(cart.customerMobile||'').trim(),items,subtotal:totals.subtotal,discountAmount:totals.discount,gstTotal:totals.gstTotal,grandTotal:totals.grandTotal,payment};await idbPut('bills',bill);}else{state.billCounter++;await idbPut('settings',{key:'counter',value:state.billCounter});bill={billNo:'INV-'+String(state.billCounter).padStart(5,'0'),date:new Date().toISOString(),customerName:(cart.customerName||'').trim(),customerMobile:(cart.customerMobile||'').trim(),biller:state.role,items,subtotal:totals.subtotal,discountAmount:totals.discount,gstTotal:totals.gstTotal,grandTotal:totals.grandTotal,payment};bill.id=await idbAdd('bills',bill);}
+ for(const c of cart.items){const p=state.products.find(x=>x.id===c.productId);p.stock-=c.qty;await idbPut('products',p);}await refreshProducts();await refreshBills();renderProducts();
+ if(state.carts.length>1){state.carts=state.carts.filter(c=>c.id!==cart.id);state.activeCartId=state.carts[0].id;}else{cart.items=[];cart.customerName='';cart.customerMobile='';cart.split=false;cart.payCash=0;cart.payUpi=0;cart.payCard=0;cart.discountEnabled=false;cart.discountAmount=0;cart.editingBillId=null;}await persistDraftCarts();renderCartTabs();renderCart();renderHistory();renderDashboard();toast(oldBill?'Bill '+bill.billNo+' updated':'Bill '+bill.billNo+' saved');showReceipt(bill,true);
+});
+
+/* ===================== RECEIPT / PRINT ===================== */
+function paymentLabel(bill){
+  const p=bill.payment || {method:'cash',cash:bill.grandTotal,upi:0,card:0};
+  if(p.method==='cash') return 'Cash';
+  const parts=[];
+  if(p.cash>0) parts.push('Cash '+money(p.cash));
+  if(p.upi>0) parts.push('UPI '+money(p.upi));
+  if(p.card>0) parts.push('Card '+money(p.card));
+  return parts.join(' + ')||'Cash';
+}
+
+function gstBreakup(bill){
+  const byRate={};
+  bill.items.forEach(it=>{
+    const rate=it.gstPercent||0;
+    const taxable=typeof it.taxableAfterDiscount==='number'?it.taxableAfterDiscount:it.price*it.qty;
+    const tax=typeof it.gstAmount==='number'?it.gstAmount:taxable*(rate/100);
+    if(!byRate[rate]) byRate[rate]={rate,taxable:0,tax:0};
+    byRate[rate].taxable+=taxable;
+    byRate[rate].tax+=tax;
+  });
+  return Object.values(byRate).sort((a,b)=>a.rate-b.rate);
+}
+
+function buildReceiptThermal(bill,narrow){
+  const s=state.shop;
+  const dt=new Date(bill.date);
+  const dateStr=dt.toLocaleDateString('en-IN')+' '+dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const rows=bill.items.map(it=>`<tr><td class="rItemName">${escapeHtml(it.name)}</td><td class="r-right">${it.qty}</td><td class="r-right">${it.price.toFixed(2)}</td><td class="r-right">${(it.price*it.qty).toFixed(2)}</td></tr>`).join('');
+  return `<div class="receipt thermal ${narrow?'narrow':''}">
+    <div class="rc-shop">
+      <div class="rn">${escapeHtml(s.name||'Shop')}</div>
+      <div>${escapeHtml(s.address||'')}</div>
+      <div>${s.mobile?('Ph: '+escapeHtml(s.mobile)):''} ${s.email?(' · '+escapeHtml(s.email)):''}</div>
+      ${s.gstin?('<div>GSTIN: '+escapeHtml(s.gstin)+'</div>'):''}
+    </div>
+    <hr>
+    <div style="display:flex;justify-content:space-between;font-size:11px;"><span>${bill.billNo}</span><span>${dateStr}</span></div>
+    ${bill.customerName?('<div style="font-size:11px;">Customer: '+escapeHtml(bill.customerName)+(bill.customerMobile?(' · '+escapeHtml(bill.customerMobile)):'')+'</div>'):''}
+    <hr>
+    <table><thead><tr><th class="rItemName">Item</th><th class="r-right">Qty</th><th class="r-right">Rate</th><th class="r-right">Amt</th></tr></thead><tbody>${rows}</tbody></table>
+    <hr>
+    <div class="rc-tot">
+      <div><span>Subtotal</span><span>₹${bill.subtotal.toFixed(2)}</span></div>
+      ${bill.discountAmount>0?`<div><span>Discount</span><span>-₹${bill.discountAmount.toFixed(2)}</span></div>`:''}
+      <div><span>GST</span><span>₹${bill.gstTotal.toFixed(2)}</span></div>
+      <div class="grand"><span>TOTAL</span><span>₹${bill.grandTotal.toFixed(2)}</span></div>
+    </div>
+    <div style="text-align:center;font-size:11px;margin-top:4px;">Paid via: ${escapeHtml(paymentLabel(bill))}</div>
+    <div class="rc-foot">Thank you for shopping with us!<br>Goods once sold will not be taken back.</div>
+  </div>`;
+}
+
+function buildReceiptA4(bill){
+  const s=state.shop;
+  const dt=new Date(bill.date);
+  const dateStr=dt.toLocaleDateString('en-IN')+' '+dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const rows=bill.items.map(it=>`<tr><td>${escapeHtml(it.name)}</td><td class="r-right">${it.qty}</td><td class="r-right">₹${it.price.toFixed(2)}</td><td class="r-right">${it.gstPercent}%</td><td class="r-right">₹${(it.price*it.qty).toFixed(2)}</td></tr>`).join('');
+  const breakup=gstBreakup(bill).map(b=>`<div><span>GST @ ${b.rate}% on ₹${b.taxable.toFixed(2)}</span><span>₹${b.tax.toFixed(2)}</span></div>`).join('');
+  return `<div class="receipt a4">
+    <div class="a4-head">
+      <div>
+        <h2>${escapeHtml(s.name||'Shop')}</h2>
+        <div class="meta">${escapeHtml(s.address||'')}<br>${s.mobile?('Ph: '+escapeHtml(s.mobile)+' '):''}${s.email?('· '+escapeHtml(s.email)):''}${s.gstin?('<br>GSTIN: '+escapeHtml(s.gstin)):''}</div>
+      </div>
+      <div class="a4-inv">
+        <div><b>TAX INVOICE</b></div>
+        <div>${bill.billNo}</div>
+        <div>${dateStr}</div>
+      </div>
+    </div>
+    ${bill.customerName?('<div style="font-size:.85rem;margin-bottom:10px;"><b>Billed to:</b> '+escapeHtml(bill.customerName)+(bill.customerMobile?(' · '+escapeHtml(bill.customerMobile)):'')+'</div>'):''}
+    <table>
+      <thead><tr><th>Item</th><th class="r-right">Qty</th><th class="r-right">Rate</th><th class="r-right">GST</th><th class="r-right">Amount</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="a4-totals">
+      <div><span>Subtotal</span><span>₹${bill.subtotal.toFixed(2)}</span></div>
+      ${bill.discountAmount>0?`<div><span>Discount</span><span>-₹${bill.discountAmount.toFixed(2)}</span></div>`:''}
+      ${breakup}
+      <div class="grand"><span>Grand Total</span><span>₹${bill.grandTotal.toFixed(2)}</span></div>
+    </div>
+    <div class="a4-foot">Paid via: ${escapeHtml(paymentLabel(bill))} &nbsp;·&nbsp; Thank you for your business!<br>This is a computer-generated invoice.</div>
+  </div>`;
+}
+
+function buildReceiptHtml(bill){
+  if(state.billPaper==='a4') return buildReceiptA4(bill);
+  if(state.billPaper==='thermal58') return buildReceiptThermal(bill,true);
+  return buildReceiptThermal(bill,false);
+}
+
+function showReceipt(bill, offerPrint){
+  const overlay=document.createElement('div');
+  overlay.className='modalOverlay';
+  overlay.id='receiptModalOverlay';
+  overlay.innerHTML=`<div class="modalCard">
+      <div class="modalHead"><h3>${bill.billNo}</h3><button class="closeX">✕</button></div>
+      ${buildReceiptHtml(bill)}
+      <div class="receiptActions"><button class="btn subtle block closeBtn">Close</button><button class="btn gold block printBtn">Print</button></div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.closeX').addEventListener('click',()=>overlay.remove());
+  overlay.querySelector('.closeBtn').addEventListener('click',()=>overlay.remove());
+  overlay.querySelector('.printBtn').addEventListener('click',()=>printBill(bill));
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) overlay.remove(); });
+  if(offerPrint){ printBill(bill); }
+}
+
+function printBill(bill){
+  const area=document.getElementById('printArea');
+  area.innerHTML=buildReceiptHtml(bill);
+  area.style.display='block';
+  const pageStyle=document.getElementById('dynPageStyle');
+  pageStyle.textContent = state.billPaper==='a4' ? '@page{size:A4;margin:14mm;}' : '@page{size:auto;margin:4mm;}';
+  window.print();
+  setTimeout(()=>{ area.style.display='none'; area.innerHTML=''; pageStyle.textContent=''; },400);
+}
+
+/* ===================== HISTORY ===================== */
+function renderHistory(){
+ const q=(document.getElementById('histSearch').value||'').toLowerCase().trim(),from=document.getElementById('histFrom').value,to=document.getElementById('histTo').value;let list=state.bills.filter(b=>{let ok=true;if(q)ok=(b.billNo||'').toLowerCase().includes(q)||(b.customerName||'').toLowerCase().includes(q);if(from)ok=ok&&b.date.slice(0,10)>=from;if(to)ok=ok&&b.date.slice(0,10)<=to;return ok;});const body=document.getElementById('histBody'),empty=document.getElementById('histEmpty');if(!list.length){body.innerHTML='';empty.classList.remove('hidden');return;}empty.classList.add('hidden');body.innerHTML=list.map(b=>{const dt=new Date(b.date);return `<tr data-id="${b.id}"><td>${escapeHtml(b.billNo)}</td><td>${dt.toLocaleDateString('en-IN')}<br><span style="color:var(--ink-faint);font-size:.72rem;">${dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span></td><td>${escapeHtml(b.customerName||'—')}</td><td style="font-size:.78rem;">${escapeHtml(paymentLabel(b))}</td><td style="text-transform:capitalize;">${escapeHtml(b.biller||'')}</td><td class="tabular">${money(b.grandTotal)}</td><td><div class="rowBtns"><button class="viewBtn">View</button>${state.role==='admin'?'<button class="editBillBtn">Edit</button><button class="dl delBtn">Delete</button>':''}</div></td></tr>`;}).join('');body.querySelectorAll('tr').forEach(row=>{const id=parseInt(row.dataset.id,10),bill=state.bills.find(b=>b.id===id);row.querySelector('.viewBtn').addEventListener('click',()=>showReceipt(bill,false));const eb=row.querySelector('.editBillBtn');if(eb)eb.addEventListener('click',()=>editBill(bill));const db=row.querySelector('.delBtn');if(db)db.addEventListener('click',()=>deleteBill(bill));});}
+['histSearch','histFrom','histTo'].forEach(id=>document.getElementById(id).addEventListener('input',renderHistory));
+document.getElementById('histClearBtn').addEventListener('click',()=>{
+  document.getElementById('histSearch').value=''; document.getElementById('histFrom').value=''; document.getElementById('histTo').value='';
+  renderHistory();
+});
+
+async function editBill(bill){if(state.role!=='admin')return;const nc=newCartObj();nc.label='Edit '+bill.billNo;nc.editingBillId=bill.id;nc.items=bill.items.map(it=>({productId:it.productId,name:it.name,price:it.price,gstPercent:it.gstPercent,unit:(state.products.find(p=>p.id===it.productId)||{}).unit||'pcs',qty:it.qty}));nc.customerName=bill.customerName||'';nc.customerMobile=bill.customerMobile||'';nc.discountEnabled=(bill.discountAmount||0)>0;nc.discountAmount=bill.discountAmount||0;nc.split=bill.payment&&bill.payment.method==='split';nc.payCash=bill.payment?.cash||0;nc.payUpi=bill.payment?.upi||0;nc.payCard=bill.payment?.card||0;state.carts.push(nc);state.activeCartId=nc.id;await persistDraftCarts();goToPage('billing');toast('Loaded '+bill.billNo+' for editing');}
+
+async function deleteBill(bill){
+  if(state.role!=='admin') return;
+  if(!confirm('Delete bill '+bill.billNo+'? Stock will be restored. This cannot be undone.')) return;
+  for(const it of bill.items){
+    const p=state.products.find(x=>x.id===it.productId);
+    if(p){ p.stock+=it.qty; await idbPut('products',p); }
+  }
+  await idbDelete('bills',bill.id);
+  await refreshProducts(); await refreshBills();
+  renderHistory(); renderProducts();
+  toast('Bill deleted and stock restored');
+}
+
+document.getElementById('exportCsvBtn').addEventListener('click',()=>{
+  if(state.bills.length===0){ toast('No bills to export',true); return; }
+  const rows=[['Bill No','Date','Customer','Mobile','Payment','Biller','Item','Qty','Rate','GST%','Line Total','Bill Subtotal','Discount','Bill GST','Bill Total']];
+  state.bills.slice().sort((a,b)=>a.id-b.id).forEach(b=>{
+    b.items.forEach(it=>{
+      rows.push([b.billNo,new Date(b.date).toLocaleString('en-IN'),b.customerName||'',b.customerMobile||'',paymentLabel(b),b.biller,it.name,it.qty,it.price,it.gstPercent,it.lineTotal.toFixed(2),b.subtotal.toFixed(2),(b.discountAmount||0).toFixed(2),b.gstTotal.toFixed(2),b.grandTotal.toFixed(2)]);
+    });
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  downloadBlob(csv,'text/csv;charset=utf-8;','sales-history-'+new Date().toISOString().slice(0,10)+'.csv');
+  toast('CSV exported');
+});
+
+function downloadBlob(content,type,filename){
+  const blob=new Blob([content],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ===================== MENU / INVENTORY (admin) ===================== */
+function renderInventory(){
+  renderCategoriesMini(); renderBulkCategorySelect(); if(!document.querySelector('#bulkRows .bulkRow')) addBulkRow();
+  const q=(document.getElementById('invSearch').value||'').toLowerCase().trim();
+  const list=state.products.filter(p=>p.name.toLowerCase().includes(q));
+  const body=document.getElementById('invBody');
+  const emptyNote=document.getElementById('invEmpty');
+  if(list.length===0){ body.innerHTML=''; emptyNote.classList.remove('hidden'); return; }
+  emptyNote.classList.add('hidden');
+  body.innerHTML=list.map(p=>`
+    <tr data-id="${p.id}">
+      <td>${escapeHtml(p.name)}</td>
+      <td>${escapeHtml(categoryNameFor(p))}</td>
+      <td>${gstPercentFor(p)}%</td>
+      <td class="tabular">${money(p.price)}</td>
+      <td><span class="pill ${p.stock<=5?'low':'ok'}">${p.stock} ${escapeHtml(p.unit)}</span></td>
+      <td>${escapeHtml(p.unit)}</td>
+      <td><div class="rowBtns"><button class="editBtn">Edit</button><button class="dl delBtn">Delete</button></div></td>
+    </tr>`).join('');
+  body.querySelectorAll('tr').forEach(row=>{
+    const id=parseInt(row.dataset.id,10);
+    row.querySelector('.editBtn').addEventListener('click',()=>openProductModal(id));
+    row.querySelector('.delBtn').addEventListener('click',()=>deleteProduct(id));
+  });
+}
+document.getElementById('invSearch').addEventListener('input',renderInventory);
+document.getElementById('addProdBtn').addEventListener('click',()=>openProductModal(null));
+
+function openProductModal(id){
+  if(state.categories.length===0){ toast('Add a category first, in Vendor Management',true); return; }
+  state.editingProductId=id;
+  const p=id? state.products.find(x=>x.id===id) : {name:'',categoryId:state.categories[0].id,price:'',stock:'',unit:'pcs'};
+  const overlay=document.createElement('div');
+  overlay.className='modalOverlay';
+  overlay.id='prodModalOverlay';
+  overlay.innerHTML=`<div class="modalCard">
+      <div class="modalHead"><h3>${id?'Edit Item':'Add Item'}</h3><button class="closeX">✕</button></div>
+      <div class="formGrid">
+        <div class="field full"><label>Item Name</label><input type="text" id="fName" value="${escapeAttr(p.name)}"></div>
+        <div class="field full"><label>Category (sets GST automatically)</label>
+          <select id="fCategory">${state.categories.map(c=>`<option value="${c.id}" ${p.categoryId===c.id?'selected':''}>${escapeHtml(c.name)} — GST ${c.gstPercent}%</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Unit</label><input type="text" id="fUnit" value="${escapeAttr(p.unit||'pcs')}" placeholder="pcs / kg / ltr"></div>
+        <div class="field"><label>Price (₹)</label><input type="number" step="0.01" min="0" id="fPrice" value="${p.price}"></div>
+        <div class="field full"><label>Stock Quantity</label><input type="number" step="1" min="0" id="fStock" value="${p.stock}"></div>
+      </div>
+      <div class="modalActions"><button class="btn subtle cancelBtn">Cancel</button><button class="btn gold saveBtn">Save Item</button></div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.closeX').addEventListener('click',()=>overlay.remove());
+  overlay.querySelector('.cancelBtn').addEventListener('click',()=>overlay.remove());
+  overlay.addEventListener('click',(e)=>{ if(e.target===overlay) overlay.remove(); });
+  overlay.querySelector('.saveBtn').addEventListener('click', async ()=>{
+    const name=document.getElementById('fName').value.trim();
+    const categoryId=parseInt(document.getElementById('fCategory').value,10);
+    const unit=document.getElementById('fUnit').value.trim()||'pcs';
+    const price=parseFloat(document.getElementById('fPrice').value);
+    const stock=parseInt(document.getElementById('fStock').value,10);
+    if(!name || isNaN(price) || price<0 || isNaN(stock) || stock<0){ toast('Please fill valid item details',true); return; }
+    const record={name,categoryId,unit,price,stock};
+    if(id){ record.id=id; await idbPut('products',record); } else { await idbAdd('products',record); }
+    await refreshProducts();
+    renderInventory(); renderProducts();
+    overlay.remove();
+    toast('Item saved');
+  });
+}
+
+async function deleteProduct(id){
+  if(!confirm('Delete this item from the menu?')) return;
+  await idbDelete('products',id);
+  await refreshProducts();
+  renderInventory(); renderProducts();
+  toast('Item deleted');
+}
+
+/* ===================== CATEGORIES IN MENU ===================== */
+function renderCategoriesMini(){const wrap=document.getElementById('catList');if(!wrap)return;if(!state.categories.length){wrap.innerHTML='<div class="md">No categories yet. Add one below.</div>';return;}wrap.innerHTML=state.categories.map(c=>{const used=state.products.filter(p=>p.categoryId===c.id).length;return `<div class="miniRow" data-id="${c.id}"><div><div class="mn">${escapeHtml(c.name)}</div><div class="md">GST ${c.gstPercent}% · ${used} item${used===1?'':'s'}</div></div><div class="rowBtns"><button class="editCatBtn">Edit</button><button class="dl delCatBtn">Delete</button></div></div>`;}).join('');wrap.querySelectorAll('.miniRow').forEach(row=>{const id=parseInt(row.dataset.id,10);row.querySelector('.editCatBtn').addEventListener('click',()=>editCategoryPrompt(id));row.querySelector('.delCatBtn').addEventListener('click',()=>deleteCategory(id));});}
+function renderBulkCategorySelect(){const sel=document.getElementById('bulkCategory');if(!sel)return;sel.innerHTML=state.categories.length?state.categories.map(c=>`<option value="${c.id}">${escapeHtml(c.name)} — GST ${c.gstPercent}%</option>`).join(''):'<option value="">Add a category first</option>';}
+function addBulkRow(data={}){const wrap=document.getElementById('bulkRows');if(!wrap)return;const row=document.createElement('div');row.className='bulkRow';row.innerHTML=`<input class="bulkName" placeholder="Product name" value="${escapeAttr(data.name||'')}"><input class="bulkPrice" type="number" min="0" step="0.01" placeholder="Price" value="${data.price??''}"><input class="bulkStock" type="number" min="0" step="1" placeholder="Stock" value="${data.stock??''}"><input class="bulkUnit" placeholder="pcs" value="${escapeAttr(data.unit||'pcs')}"><button class="removeBulk" type="button">×</button>`;row.querySelector('.removeBulk').addEventListener('click',()=>{if(wrap.children.length>1)row.remove();else row.querySelectorAll('input').forEach(i=>i.value=i.classList.contains('bulkUnit')?'pcs':'');});wrap.appendChild(row);}
+async function saveBulkProducts(){if(!state.categories.length){toast('Add a category first',true);return;}const cid=parseInt(document.getElementById('bulkCategory').value,10);if(isNaN(cid)){toast('Select a category',true);return;}let saved=0;for(const row of document.querySelectorAll('#bulkRows .bulkRow')){const name=row.querySelector('.bulkName').value.trim(),price=parseFloat(row.querySelector('.bulkPrice').value),stock=parseInt(row.querySelector('.bulkStock').value,10),unit=row.querySelector('.bulkUnit').value.trim()||'pcs';if(!name)continue;if(isNaN(price)||price<0||isNaN(stock)||stock<0){toast('Please enter valid product details',true);return;}await idbAdd('products',{name,categoryId:cid,unit,price,stock});saved++;}if(!saved){toast('Enter at least one product',true);return;}await refreshProducts();renderInventory();renderProducts();renderCategoriesMini();renderBulkCategorySelect();renderPurchaseSelects();document.getElementById('bulkRows').innerHTML='';addBulkRow();toast(saved+' product'+(saved===1?'':'s')+' added');}
+document.getElementById('addCatBtn').addEventListener('click',async()=>{const name=document.getElementById('newCatName').value.trim(),gst=parseFloat(document.getElementById('newCatGst').value);if(!name){toast('Enter a category name',true);return;}if(isNaN(gst)||gst<0){toast('Enter a valid GST percentage',true);return;}await idbAdd('categories',{name,gstPercent:gst});await refreshCategories();document.getElementById('newCatName').value='';document.getElementById('newCatGst').value='';renderCategoriesMini();renderBulkCategorySelect();renderPurchaseSelects();renderCategoryChips();toast('Category added');});
+async function editCategoryPrompt(id){const cat=categoryById(id);if(!cat)return;const n=prompt('Category name:',cat.name);if(n===null)return;const g=prompt('GST %:',cat.gstPercent);if(g===null)return;const gst=parseFloat(g);if(!n.trim()||isNaN(gst)||gst<0){toast('Invalid category details',true);return;}await idbPut('categories',{id,name:n.trim(),gstPercent:gst});await refreshCategories();renderCategoriesMini();renderBulkCategorySelect();renderPurchaseSelects();renderCategoryChips();renderInventory();toast('Category updated');}
+async function deleteCategory(id){const inUse=state.products.some(p=>p.categoryId===id);if(inUse&&!confirm('Some menu items use this category. Delete anyway? They will show as Uncategorized (0% GST) until reassigned.'))return;if(!inUse&&!confirm('Delete this category?'))return;await idbDelete('categories',id);await refreshCategories();renderCategoriesMini();renderBulkCategorySelect();renderPurchaseSelects();renderCategoryChips();renderInventory();toast('Category deleted');}
+document.getElementById('addBulkRowBtn').addEventListener('click',()=>addBulkRow());document.getElementById('saveBulkBtn').addEventListener('click',saveBulkProducts);
+
+/* ===================== VENDOR MANAGEMENT (admin) ===================== */
+function renderVendorsPage(){
+  renderVendorsMini();
+  renderPurchaseSelects();
+  renderPurchaseHistory();
+}
+
+function renderCategoriesMini(){
+  const wrap=document.getElementById('catList');
+  if(state.categories.length===0){ wrap.innerHTML='<div class="md">No categories yet. Add one below.</div>'; return; }
+  wrap.innerHTML=state.categories.map(c=>{
+    const usedCount=state.products.filter(p=>p.categoryId===c.id).length;
+    return `<div class="miniRow" data-id="${c.id}">
+      <div><div class="mn">${escapeHtml(c.name)}</div><div class="md">GST ${c.gstPercent}% · ${usedCount} item${usedCount===1?'':'s'}</div></div>
+      <div class="rowBtns"><button class="editCatBtn">Edit</button><button class="dl delCatBtn">Delete</button></div>
+    </div>`;
+  }).join('');
+  wrap.querySelectorAll('.miniRow').forEach(row=>{
+    const id=parseInt(row.dataset.id,10);
+    row.querySelector('.editCatBtn').addEventListener('click',()=>editCategoryPrompt(id));
+    row.querySelector('.delCatBtn').addEventListener('click',()=>deleteCategory(id));
+  });
+}
+document.getElementById('addCatBtn').addEventListener('click', async ()=>{
+  const name=document.getElementById('newCatName').value.trim();
+  const gst=parseFloat(document.getElementById('newCatGst').value);
+  if(!name){ toast('Enter a category name',true); return; }
+  if(isNaN(gst) || gst<0){ toast('Enter a valid GST percentage',true); return; }
+  await idbAdd('categories',{name,gstPercent:gst});
+  await refreshCategories();
+  document.getElementById('newCatName').value=''; document.getElementById('newCatGst').value='';
+  renderCategoriesMini(); renderPurchaseSelects(); renderCategoryChips();
+  toast('Category added');
+});
+async function editCategoryPrompt(id){
+  const cat=categoryById(id);
+  const newName=prompt('Category name:', cat.name);
+  if(newName===null) return;
+  const newGstStr=prompt('GST %:', cat.gstPercent);
+  if(newGstStr===null) return;
+  const newGst=parseFloat(newGstStr);
+  if(!newName.trim() || isNaN(newGst) || newGst<0){ toast('Invalid category details',true); return; }
+  await idbPut('categories',{id,name:newName.trim(),gstPercent:newGst});
+  await refreshCategories();
+  renderCategoriesMini(); renderPurchaseSelects(); renderCategoryChips(); renderInventory();
+  toast('Category updated');
+}
+async function deleteCategory(id){
+  const inUse=state.products.some(p=>p.categoryId===id);
+  if(inUse && !confirm('Some menu items use this category. Delete anyway? They will show as Uncategorized (0% GST) until reassigned.')) return;
+  if(!inUse && !confirm('Delete this category?')) return;
+  await idbDelete('categories',id);
+  await refreshCategories();
+  renderCategoriesMini(); renderPurchaseSelects(); renderCategoryChips(); renderInventory();
+  toast('Category deleted');
+}
+
+function renderVendorsMini(){
+  const wrap=document.getElementById('vendorList');
+  if(state.vendors.length===0){ wrap.innerHTML='<div class="md">No vendors yet. Add one below.</div>'; return; }
+  wrap.innerHTML=state.vendors.map(v=>`
+    <div class="miniRow" data-id="${v.id}">
+      <div><div class="mn">${escapeHtml(v.name)}</div><div class="md">${escapeHtml(v.phone||'No phone on file')}</div></div>
+      <div class="rowBtns"><button class="dl delVendorBtn">Delete</button></div>
+    </div>`).join('');
+  wrap.querySelectorAll('.delVendorBtn').forEach(btn=>{
+    const id=parseInt(btn.closest('.miniRow').dataset.id,10);
+    btn.addEventListener('click',()=>deleteVendor(id));
+  });
+}
+document.getElementById('addVendorBtn').addEventListener('click', async ()=>{
+  const name=document.getElementById('newVendorName').value.trim();
+  const phone=document.getElementById('newVendorPhone').value.trim();
+  if(!name){ toast('Enter a vendor name',true); return; }
+  await idbAdd('vendors',{name,phone});
+  await refreshVendors();
+  document.getElementById('newVendorName').value=''; document.getElementById('newVendorPhone').value='';
+  renderVendorsMini(); renderPurchaseSelects();
+  toast('Vendor added');
+});
+async function deleteVendor(id){
+  if(!confirm('Delete this vendor? Past purchase records will keep the vendor name for reference.')) return;
+  await idbDelete('vendors',id);
+  await refreshVendors();
+  renderVendorsMini(); renderPurchaseSelects();
+  toast('Vendor deleted');
+}
+
+function renderPurchaseSelects(){
+  const vendorSel=document.getElementById('purVendor');
+  const prodSel=document.getElementById('purProduct');
+  vendorSel.innerHTML = state.vendors.length ? state.vendors.map(v=>`<option value="${v.id}">${escapeHtml(v.name)}</option>`).join('') : '<option value="">No vendors yet</option>';
+  prodSel.innerHTML = state.products.length ? state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('') : '<option value="">No menu items yet</option>';
+}
+document.getElementById('addPurchaseBtn').addEventListener('click', async ()=>{
+  const vendorId=parseInt(document.getElementById('purVendor').value,10);
+  const productId=parseInt(document.getElementById('purProduct').value,10);
+  const qty=parseInt(document.getElementById('purQty').value,10);
+  const cost=parseFloat(document.getElementById('purCost').value);
+  if(isNaN(vendorId) || isNaN(productId)){ toast('Add a vendor and a menu item first',true); return; }
+  if(isNaN(qty) || qty<=0){ toast('Enter a valid quantity',true); return; }
+  const vendor=state.vendors.find(v=>v.id===vendorId);
+  const product=state.products.find(p=>p.id===productId);
+  if(!vendor||!product) return;
+  await idbAdd('purchases',{vendorId,vendorName:vendor.name,productId,productName:product.name,quantity:qty,costPrice:isNaN(cost)?null:cost,date:new Date().toISOString()});
+  product.stock=(product.stock||0)+qty;
+  await idbPut('products',product);
+  await refreshProducts(); await refreshPurchases();
+  renderPurchaseHistory(); renderInventory(); renderProducts(); renderPurchaseSelects();
+  document.getElementById('purQty').value=1; document.getElementById('purCost').value='';
+  toast('Purchase logged and stock updated');
+});
+
+function renderPurchaseHistory(){
+  const body=document.getElementById('purchaseBody');
+  const emptyNote=document.getElementById('purchaseEmpty');
+  if(state.purchases.length===0){ body.innerHTML=''; emptyNote.classList.remove('hidden'); return; }
+  emptyNote.classList.add('hidden');
+  body.innerHTML=state.purchases.map(p=>`
+    <tr>
+      <td>${new Date(p.date).toLocaleDateString('en-IN')}</td>
+      <td>${escapeHtml(p.vendorName)}</td>
+      <td>${escapeHtml(p.productName)}</td>
+      <td>${p.quantity}</td>
+      <td>${p.costPrice!=null ? money(p.costPrice) : '—'}</td>
+    </tr>`).join('');
+}
+
+/* ===================== DASHBOARD (admin) ===================== */
+document.getElementById('periodPills').addEventListener('click',(e)=>{const btn=e.target.closest('.periodPill');if(!btn)return;state.dashboardPeriod=btn.dataset.period;state.dashboardFrom='';state.dashboardTo='';renderDashboard();});
+['dashFrom','dashTo','dashPayment','dashBiller','dashCategory'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{state.dashboardFrom=document.getElementById('dashFrom').value;state.dashboardTo=document.getElementById('dashTo').value;state.dashboardPayment=document.getElementById('dashPayment').value;state.dashboardBiller=document.getElementById('dashBiller').value;state.dashboardCategory=document.getElementById('dashCategory').value;renderDashboard();}));
+function periodRange(period){const now=new Date(),s=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x;},t=s(now);if(period==='today')return[t,new Date(t.getTime()+86400000)];if(period==='yesterday'){const y=new Date(t.getTime()-86400000);return[y,t];}if(period==='7d')return[new Date(t.getTime()-6*86400000),new Date(t.getTime()+86400000)];if(period==='30d')return[new Date(t.getTime()-29*86400000),new Date(t.getTime()+86400000)];return[new Date(0),new Date(t.getTime()+86400000)];}
+function getDashboardList(){let a,b;if(state.dashboardFrom||state.dashboardTo){a=state.dashboardFrom?new Date(state.dashboardFrom+'T00:00:00'):new Date(0);b=state.dashboardTo?new Date(state.dashboardTo+'T23:59:59.999'):new Date();}else[a,b]=periodRange(state.dashboardPeriod);let list=state.bills.filter(x=>{const t=new Date(x.date).getTime();return t>=a.getTime()&&t<=b.getTime();});if(state.dashboardPayment!=='all')list=list.filter(x=>{const p=x.payment||{};return state.dashboardPayment==='cash'?(p.cash||0)>0:state.dashboardPayment==='upi'?(p.upi||0)>0:(p.card||0)>0;});if(state.dashboardBiller!=='all')list=list.filter(x=>String(x.biller||'')===state.dashboardBiller);if(state.dashboardCategory!=='all')list=list.filter(x=>x.items.some(it=>{const p=state.products.find(y=>y.id===it.productId);return p&&String(p.categoryId)===state.dashboardCategory;}));return list;}
+function renderDashboard(){const bs=document.getElementById('dashBiller');bs.innerHTML='<option value="all">All Billers</option>'+[...new Set(state.bills.map(b=>b.biller).filter(Boolean))].map(b=>`<option value="${escapeAttr(b)}">${escapeHtml(b)}</option>`).join('');bs.value=state.dashboardBiller;const cs=document.getElementById('dashCategory');cs.innerHTML='<option value="all">All Categories</option>'+state.categories.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');cs.value=state.dashboardCategory;document.getElementById('dashFrom').value=state.dashboardFrom;document.getElementById('dashTo').value=state.dashboardTo;document.getElementById('dashPayment').value=state.dashboardPayment;document.querySelectorAll('.periodPill').forEach(p=>p.classList.toggle('active',p.dataset.period===state.dashboardPeriod));const list=getDashboardList();let total=0,cash=0,upi=0,card=0,disc=0,items=0;list.forEach(b=>{total+=+b.grandTotal||0;disc+=+b.discountAmount||0;items+=(b.items||[]).reduce((a,i)=>a+(i.qty||0),0);const p=b.payment||{cash:b.grandTotal,upi:0,card:0};cash+=p.cash||0;upi+=p.upi||0;card+=p.card||0;});const avg=list.length?total/list.length:0;const label=state.dashboardFrom||state.dashboardTo?(state.dashboardFrom||'Start')+' → '+(state.dashboardTo||'Today'):{today:'Today',yesterday:'Yesterday','7d':'Last 7 Days','30d':'Last 30 Days',all:'All Time'}[state.dashboardPeriod];document.getElementById('statGrid').innerHTML=`<div class="statCard hero"><div class="lbl">Total Collection · ${escapeHtml(label)}</div><div class="val">${money(total)}</div><div class="sub">${list.length} bill${list.length===1?'':'s'}</div></div><div class="statCard"><div class="lbl">Cash</div><div class="val">${money(cash)}</div></div><div class="statCard"><div class="lbl">UPI</div><div class="val">${money(upi)}</div></div><div class="statCard"><div class="lbl">Card</div><div class="val">${money(card)}</div></div><div class="statCard"><div class="lbl">Bills</div><div class="val">${list.length}</div></div>`;document.getElementById('insightGrid').innerHTML=`<div class="insightCard"><div class="lbl">Average Bill</div><div class="val">${money(avg)}</div></div><div class="insightCard"><div class="lbl">Items Sold</div><div class="val">${items}</div></div><div class="insightCard"><div class="lbl">Discount Given</div><div class="val">${money(disc)}</div></div><div class="insightCard"><div class="lbl">Best Payment</div><div class="val">${[['Cash',cash],['UPI',upi],['Card',card]].sort((a,b)=>b[1]-a[1])[0][0]}</div></div>`;renderDashboardCharts(list);}
+function renderDashboardCharts(list){const daily={};list.forEach(b=>daily[b.date.slice(0,10)]=(daily[b.date.slice(0,10)]||0)+(+b.grandTotal||0));const ks=Object.keys(daily).sort().slice(-14),mx=Math.max(1,...ks.map(k=>daily[k]));document.getElementById('dailySalesChart').innerHTML=ks.length?ks.map(k=>`<div class="barItem"><div class="barValue">${money(daily[k])}</div><div class="bar" style="height:${Math.max(2,daily[k]/mx*140)}px"></div><div class="barLabel">${k.slice(5)}</div></div>`).join(''):'<div class="md">No sales for this filter.</div>';const ps=[['Cash',list.reduce((a,b)=>a+(b.payment?.cash||0),0)],['UPI',list.reduce((a,b)=>a+(b.payment?.upi||0),0)],['Card',list.reduce((a,b)=>a+(b.payment?.card||0),0)]],pm=Math.max(1,...ps.map(x=>x[1]));document.getElementById('paymentChart').innerHTML=ps.map(x=>`<div class="hbarRow"><span>${x[0]}</span><div class="hbarTrack"><div class="hbarFill" style="width:${x[1]/pm*100}%"></div></div><span class="hbarVal">${money(x[1])}</span></div>`).join('');const top={};list.forEach(b=>(b.items||[]).forEach(i=>top[i.name]=(top[i.name]||0)+(i.qty||0)));const ts=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,6),tm=Math.max(1,...ts.map(x=>x[1]));document.getElementById('topProductsChart').innerHTML=ts.length?ts.map(x=>`<div class="hbarRow"><span>${escapeHtml(x[0].length>18?x[0].slice(0,18)+'…':x[0])}</span><div class="hbarTrack"><div class="hbarFill" style="width:${x[1]/tm*100}%"></div></div><span class="hbarVal">${x[1]}</span></div>`).join(''):'<div class="md">No product sales.</div>';const bd={};list.forEach(b=>bd[b.date.slice(0,10)]=(bd[b.date.slice(0,10)]||0)+1);const bks=Object.keys(bd).sort().slice(-14),bm=Math.max(1,...bks.map(k=>bd[k]));document.getElementById('dailyBillsChart').innerHTML=bks.length?bks.map(k=>`<div class="barItem"><div class="barValue">${bd[k]}</div><div class="bar" style="height:${Math.max(2,bd[k]/bm*140)}px"></div><div class="barLabel">${k.slice(5)}</div></div>`).join(''):'<div class="md">No bills for this filter.</div>';}
+
+/* ===================== SETTINGS (admin) ===================== */
+function renderSettings(){
+  document.getElementById('setShopName').value=state.shop.name||'';
+  document.getElementById('setAddress').value=state.shop.address||'';
+  document.getElementById('setGstin').value=state.shop.gstin||'';
+  document.getElementById('setMobile').value=state.shop.mobile||'';
+  document.getElementById('setEmail').value=state.shop.email||'';
+  document.getElementById('setAdminPass').value='';
+  document.getElementById('setBillerPass').value='';
+  document.getElementById('setBillPaper').value=state.billPaper;
+}
+document.getElementById('saveShopBtn').addEventListener('click', async ()=>{
+  state.shop={
+    name:document.getElementById('setShopName').value.trim()||'Khata Billing',
+    address:document.getElementById('setAddress').value.trim(),
+    gstin:document.getElementById('setGstin').value.trim(),
+    mobile:document.getElementById('setMobile').value.trim(),
+    email:document.getElementById('setEmail').value.trim()
+  };
+  await idbPut('settings',{key:'shop',value:state.shop});
+  applyShopBranding();
+  toast('Shop details saved');
+});
+document.getElementById('savePaperBtn').addEventListener('click', async ()=>{
+  state.billPaper=document.getElementById('setBillPaper').value;
+  await idbPut('settings',{key:'billPaper',value:state.billPaper});
+  toast('Billing preference saved');
+});
+document.getElementById('savePassBtn').addEventListener('click', async ()=>{
+  const a=document.getElementById('setAdminPass').value.trim();
+  const b=document.getElementById('setBillerPass').value.trim();
+  if(a) state.auth.adminPass=a;
+  if(b) state.auth.billerPass=b;
+  await idbPut('settings',{key:'auth',value:state.auth});
+  document.getElementById('setAdminPass').value=''; document.getElementById('setBillerPass').value='';
+  toast('Passwords updated');
+});
+document.getElementById('resetDataBtn').addEventListener('click', async ()=>{
+  if(!confirm('This will permanently erase ALL menu items, categories, vendors, purchases and bills. Continue?')) return;
+  if(!confirm('Are you absolutely sure? This cannot be undone.')) return;
+  await idbClear('products'); await idbClear('bills'); await idbClear('categories'); await idbClear('vendors'); await idbClear('purchases');
+  await refreshProducts(); await refreshBills(); await refreshCategories(); await refreshVendors(); await refreshPurchases();
+  state.carts=[newCartObj()]; state.activeCartId=state.carts[0].id;
+  await persistDraftCarts();
+  renderInventory(); renderProducts(); renderHistory();
+  toast('All data erased');
+});
+
+/* ---- Backup ---- */
+document.getElementById('backupBtn').addEventListener('click', async ()=>{
+  const dump={
+    _type:'khata-billing-backup', _version:3, exportedAt:new Date().toISOString(),
+    shop:state.shop, auth:state.auth, billCounter:state.billCounter, billPaper:state.billPaper,
+    categories:state.categories, products:state.products, bills:state.bills,
+    vendors:state.vendors, purchases:state.purchases
+  };
+  downloadBlob(JSON.stringify(dump,null,2),'application/json','khata-backup-'+new Date().toISOString().slice(0,10)+'.json');
+  toast('Backup file downloaded');
+});
+
+/* ---- Restore ---- */
+document.getElementById('restoreBtn').addEventListener('click', ()=>{ document.getElementById('restoreFileInput').click(); });
+document.getElementById('restoreFileInput').addEventListener('change', async (e)=>{
+  const file=e.target.files[0];
+  e.target.value='';
+  if(!file) return;
+  try{
+    const text=await file.text();
+    const data=JSON.parse(text);
+    if(!data || data._type!=='khata-billing-backup' || !Array.isArray(data.products) || !Array.isArray(data.bills)){
+      toast('This file is not a valid Khata Billing backup',true); return;
+    }
+    if(!confirm('Restoring will replace ALL current data on this device. Continue?')) return;
+
+    await idbClear('products'); await idbClear('bills'); await idbClear('categories'); await idbClear('vendors'); await idbClear('purchases');
+    for(const c of (data.categories||[])){ const {id,...rest}=c; await idbAdd('categories', id!=null?c:rest); }
+    for(const p of data.products){ const {id,...rest}=p; await idbAdd('products', id!=null?p:rest); }
+    for(const b of data.bills){ const {id,...rest}=b; await idbAdd('bills', id!=null?b:rest); }
+    for(const v of (data.vendors||[])){ const {id,...rest}=v; await idbAdd('vendors', id!=null?v:rest); }
+    for(const pu of (data.purchases||[])){ const {id,...rest}=pu; await idbAdd('purchases', id!=null?pu:rest); }
+    if(data.shop) await idbPut('settings',{key:'shop',value:data.shop});
+    if(data.auth) await idbPut('settings',{key:'auth',value:data.auth});
+    if(typeof data.billCounter==='number') await idbPut('settings',{key:'counter',value:data.billCounter});
+    if(data.billPaper) await idbPut('settings',{key:'billPaper',value:data.billPaper});
+
+    const shopRow=await idbGet('settings','shop'), authRow=await idbGet('settings','auth'), counterRow=await idbGet('settings','counter'), paperRow=await idbGet('settings','billPaper');
+    state.shop=shopRow.value; state.auth=authRow.value; state.billCounter=counterRow.value; state.billPaper=paperRow?paperRow.value:'thermal80';
+    await refreshCategories(); await refreshProducts(); await refreshBills(); await refreshVendors(); await refreshPurchases();
+    state.carts=[newCartObj()]; state.activeCartId=state.carts[0].id;
+    await persistDraftCarts();
+    applyShopBranding();
+    renderInventory(); renderProducts(); renderHistory(); renderSettings(); renderCategoryChips();
+    toast('Backup restored successfully');
+  }catch(err){
+    console.error(err);
+    toast('Could not read that backup file',true);
+  }
+});
+
+/* ===================== HELPERS ===================== */
+function escapeHtml(str){ return String(str==null?'':str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(str){ return escapeHtml(str); }
+
+/* ===================== PWA: SERVICE WORKER ===================== */
+function registerServiceWorker(){
+  if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+}
+
+window.addEventListener('resize', ()=>{ if(state.currentPage==='billing') renderCart(); });
+
+/* ===================== BOOT ===================== */
+init().catch(err=>{ console.error(err); toast('Failed to start database. Try reloading the app.',true); });
+
+})();
+</script>
+</body>
+</html>
